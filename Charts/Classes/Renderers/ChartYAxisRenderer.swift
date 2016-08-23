@@ -172,7 +172,62 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
             }
         }
     }
-    
+  
+    /// MAARK: Using the data set label as the axis label
+    public func computeDataSetLabelForAxis(context context: CGContext, fixedPosition: CGFloat, offset: CGFloat, textAlign: NSTextAlignment)
+    {
+      guard let yAxis = yAxis else { return }
+      
+      guard let dataSets = yAxis.dataSets else { return }
+      
+      let labelFont = yAxis.labelFont
+      let labelTextColor = yAxis.labelTextColor
+      
+      let valueToPixelMatrix = transformer.valueToPixelMatrix
+      
+      let currentRightPoint = transformer.getValueByTouchPoint(CGPoint(x: viewPortHandler.contentRight, y: viewPortHandler.contentBottom))
+      
+      let entryNumber = Int(floor(currentRightPoint.x))
+
+      var pt = CGPoint()
+      
+      var prevoiusYCoord: CGFloat = 0
+      
+      for i in 0...dataSets.count - 1 {
+
+        let set = dataSets[i]
+        
+        guard let setLabel = set.label else { continue }
+        
+        guard let entry = set.entryForIndex(entryNumber) else { continue }
+        
+        pt.x = 0
+        
+        if i == dataSets.count - 1 { pt.y = CGFloat(entry.value) / 2 }
+        else
+        {
+          
+          let previousSet = dataSets[i + 1]
+          
+          guard let previousEntry = previousSet.entryForIndex(entryNumber) else { continue }
+          
+          let previousEntryValue = max(0, CGFloat(previousEntry.value))
+          pt.y = (CGFloat(entry.value) + previousEntryValue) / 2
+        }
+
+        pt = CGPointApplyAffineTransform(pt, valueToPixelMatrix)
+        pt.x = fixedPosition
+      
+        pt.y += offset
+
+        if abs(prevoiusYCoord - pt.y) < 10 { pt.y += 2 }
+        
+        prevoiusYCoord = pt.y
+        
+        ChartUtils.drawText(context: context, text: setLabel, point: pt, align: textAlign, attributes: [NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelTextColor])
+      }
+    }
+  
     /// draws the y-axis labels to the screen
     public override func renderAxisLabels(context context: CGContext)
     {
@@ -182,7 +237,7 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
         {
             return
         }
-        
+
         let xoffset = yAxis.xOffset
         let yoffset = yAxis.labelFont.lineHeight / 2.5 + yAxis.yOffset
         
@@ -220,8 +275,15 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
                 xPos = viewPortHandler.contentRight - xoffset
             }
         }
-        
+      
+      if yAxis.useDataSetLabelForAxisLabel && dependency == .Right
+      {
+        computeDataSetLabelForAxis(context: context, fixedPosition: xPos, offset: yoffset - yAxis.labelFont.lineHeight, textAlign: textAlign)
+      }
+      else
+      {
         drawYLabels(context: context, fixedPosition: xPos, offset: yoffset - yAxis.labelFont.lineHeight, textAlign: textAlign)
+      }
     }
     
     private var _axisLineSegmentsBuffer = [CGPoint](count: 2, repeatedValue: CGPoint())
@@ -272,7 +334,12 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
     internal func drawYLabels(context context: CGContext, fixedPosition: CGFloat, offset: CGFloat, textAlign: NSTextAlignment)
     {
         guard let yAxis = yAxis else { return }
-        
+      
+        if yAxis.hideLabels
+        {
+          return
+        }
+      
         let labelFont = yAxis.labelFont
         let labelTextColor = yAxis.labelTextColor
         
@@ -283,7 +350,7 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
         for i in 0 ..< yAxis.entryCount
         {
             let text = yAxis.getFormattedLabel(i)
-            
+
             if (!yAxis.isDrawTopYLabelEntryEnabled && i >= yAxis.entryCount - 1)
             {
                 break
@@ -291,11 +358,12 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
             
             pt.x = 0
             pt.y = CGFloat(yAxis.entries[i])
+
             pt = CGPointApplyAffineTransform(pt, valueToPixelMatrix)
             
             pt.x = fixedPosition
             pt.y += offset
-            
+
             ChartUtils.drawText(context: context, text: text, point: pt, align: textAlign, attributes: [NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelTextColor])
         }
     }
@@ -363,8 +431,26 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
                 y1: position.y,
                 y2: position.y);
         }
+      
+      if yAxis.drawTopBorder
+      {
+        CGContextSaveGState(context)
+        
+        CGContextSetStrokeColorWithColor(context, yAxis.topBorderColor.CGColor)
+        CGContextSetLineWidth(context, yAxis.gridLineWidth)
+        CGContextSetLineCap(context, yAxis.gridLineCap)
+        CGContextSetLineDash(context, 0.0, nil, 0)
+        _gridLineBuffer[0].x = viewPortHandler.contentLeft
+        _gridLineBuffer[0].y = viewPortHandler.contentTop
+        _gridLineBuffer[1].x = viewPortHandler.contentRight
+        _gridLineBuffer[1].y = viewPortHandler.contentTop
+        CGContextStrokeLineSegments(context, _gridLineBuffer, 2)
+        
+        CGContextRestoreGState(context)
+        
+      }
     }
-    
+  
     /// Draws the zero line at the specified position.
     public func drawZeroLine(
         context context: CGContext,

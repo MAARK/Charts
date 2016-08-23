@@ -241,6 +241,11 @@ public class ChartLegendRenderer: ChartRendererBase
             
             var lineIndex: Int = 0
             
+            if legend.hasShadowBorder
+            {
+              drawShadow(context: context, originPosX: originPosX, originPosY: posY, legend: legend)
+            }
+            
             for i in 0..<labels.count
             {
                 if (i < calculatedLabelBreakPoints.count && calculatedLabelBreakPoints[i])
@@ -261,7 +266,8 @@ public class ChartLegendRenderer: ChartRendererBase
                 
                 let drawingForm = colors[i] != nil
                 let isStacked = labels[i] == nil // grouped forms have null labels
-                
+        
+              
                 if (drawingForm)
                 {
                     if (direction == .RightToLeft)
@@ -392,10 +398,54 @@ public class ChartLegendRenderer: ChartRendererBase
                 }
             }
         }
+      
+
     }
 
     private var _formLineSegmentsBuffer = [CGPoint](count: 2, repeatedValue: CGPoint())
-    
+  
+    /// Draws shadow around legend
+  
+    public func drawShadow(context context: CGContext, originPosX: CGFloat, originPosY: CGFloat, legend: ChartLegend)
+    {
+      let shadowOffset = CGSizeMake(0, 2)
+      let blur: CGFloat = 10
+      
+      CGContextSaveGState(context)
+      defer { CGContextRestoreGState(context) }
+      
+      CGContextSetShadowWithColor(context, shadowOffset, blur, UIColor(white: 0, alpha: 0.2).CGColor)
+      
+      let offset: CGFloat = 5
+      let rectangle = CGRectMake(originPosX - (offset * 2), originPosY - offset, legend.neededWidth + (offset * 4), legend.neededHeight + (offset * 2))
+      
+      let cornerRadius: CGFloat = 3
+      
+      CGContextSetStrokeColorWithColor(context, legend.legendBackgroundColor.CGColor)
+      CGContextSetFillColorWithColor(context, legend.legendBackgroundColor.CGColor)
+      
+      let minX = CGRectGetMinX(rectangle)
+      let midX = CGRectGetMidX(rectangle)
+      let maxX = CGRectGetMaxX(rectangle)
+      
+      let minY = CGRectGetMinY(rectangle)
+      let midY = CGRectGetMidY(rectangle)
+      let maxY = CGRectGetMaxY(rectangle)
+      
+      CGContextMoveToPoint(context, minX, midY)
+      CGContextAddArcToPoint(context, minX, minY, midX, midY, cornerRadius)
+
+      CGContextAddArcToPoint(context, maxX, minY, maxX, midY, cornerRadius)
+      
+      CGContextAddArcToPoint(context, maxX, maxY, midX, maxY, cornerRadius)
+      
+      CGContextAddArcToPoint(context, minX, maxY, minX, midY, cornerRadius)
+      
+      CGContextClosePath(context);
+      
+      CGContextDrawPath(context, .FillStroke)
+    }
+  
     /// Draws the Legend-form at the given position with the color at the given index.
     public func drawForm(context context: CGContext, x: CGFloat, y: CGFloat, colorIndex: Int, legend: ChartLegend)
     {
@@ -432,6 +482,6 @@ public class ChartLegendRenderer: ChartRendererBase
     /// Draws the provided label at the given position.
     public func drawLabel(context context: CGContext, x: CGFloat, y: CGFloat, label: String, font: NSUIFont, textColor: NSUIColor)
     {
-        ChartUtils.drawText(context: context, text: label, point: CGPoint(x: x, y: y), align: .Left, attributes: [NSFontAttributeName: font, NSForegroundColorAttributeName: textColor])
+        ChartUtils.drawText(context: context, text: label, point: CGPoint(x: x, y: y + 1), align: .Left, attributes: [NSFontAttributeName: font, NSForegroundColorAttributeName: textColor])
     }
 }

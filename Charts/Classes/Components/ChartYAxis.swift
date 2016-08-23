@@ -51,7 +51,15 @@ public class ChartYAxis: ChartAxisBase
     
     /// if true, the y-labels show only the minimum and maximum value
     public var showOnlyMinMaxEnabled = false
-    
+  
+    /// MAARK
+    public var onlyFormatSignificantLabels: Bool = false
+    public var useDataSetLabelForAxisLabel: Bool = false
+    public var dataSets: [IChartDataSet]?
+    public var hideLabels: Bool = false
+    public var drawTopBorder: Bool = false
+    public var topBorderColor: UIColor = UIColor.blackColor()
+  
     /// flag that indicates if the axis is inverted or not
     public var inverted = false
     
@@ -232,17 +240,38 @@ public class ChartYAxis: ChartAxisBase
     public override func getLongestLabel() -> String
     {
         var longest = ""
-        
-        for i in 0 ..< entries.count
+      
+        if hideLabels
         {
-            let text = getFormattedLabel(i)
-            
-            if (longest.characters.count < text.characters.count)
-            {
-                longest = text
-            }
+          return longest
         }
-        
+      
+        if axisDependency == .Right && useDataSetLabelForAxisLabel
+        {
+          guard let dataSets = self.dataSets else { return longest }
+          
+          for set in dataSets
+          {
+            guard let setLabel = set.label else { continue }
+            
+            if longest.characters.count < setLabel.characters.count
+            {
+              longest = setLabel
+            }
+          }
+        }
+        else
+        {
+          for i in 0 ..< entries.count
+          {
+              let text = getFormattedLabel(i)
+            
+              if (longest.characters.count < text.characters.count)
+              {
+                  longest = text
+              }
+          }
+        }
         return longest
     }
 
@@ -253,8 +282,16 @@ public class ChartYAxis: ChartAxisBase
         {
             return ""
         }
-        
-        return (valueFormatter ?? _defaultValueFormatter).stringFromNumber(entries[index])!
+      
+        if onlyFormatSignificantLabels && index == entries.count - 1
+        {
+  
+          return (valueFormatter ?? _defaultValueFormatter).stringFromNumber(entries[index])!
+
+        }
+      
+        _defaultValueFormatter.multiplier = valueFormatter?.multiplier
+        return _defaultValueFormatter.stringFromNumber(entries[index])!
     }
     
     /// - returns: true if this axis needs horizontal offset, false if no offset is needed.
