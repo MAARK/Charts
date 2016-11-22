@@ -220,7 +220,9 @@ public class ChartYAxisRenderer: ChartAxisRendererBase
       
         pt.y += offset
 
-        if abs(prevoiusYCoord - pt.y) < 10 { pt.y += 2 }
+        if prevoiusYCoord != 0 && (pt.y - prevoiusYCoord) < 12 {
+            pt.y += 12 - (pt.y - prevoiusYCoord) + 2
+        }
         
         prevoiusYCoord = pt.y
         
