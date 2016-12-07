@@ -10,6 +10,12 @@
 		06AEE7A71BDC3F8B009875AE /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BA8EC401A9D14DC00CE82E1 /* Charts.framework */; };
 		06AEE7AE1BDC3FC6009875AE /* LineChartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AEE7AD1BDC3FC6009875AE /* LineChartTests.swift */; };
 		06AEE7C21BDC4277009875AE /* FBSnapshotTestCase.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06AEE7C11BDC4277009875AE /* FBSnapshotTestCase.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4FA0A3C21DF85E780021E791 /* ChartCallout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C11DF85E780021E791 /* ChartCallout.swift */; };
+		4FA0A3C31DF85E780021E791 /* ChartCallout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C11DF85E780021E791 /* ChartCallout.swift */; };
+		4FA0A3C41DF85E780021E791 /* ChartCallout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C11DF85E780021E791 /* ChartCallout.swift */; };
+		4FA0A3C61DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C51DF85EA30021E791 /* ChartXAxisAreaData.swift */; };
+		4FA0A3C71DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C51DF85EA30021E791 /* ChartXAxisAreaData.swift */; };
+		4FA0A3C81DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0A3C51DF85EA30021E791 /* ChartXAxisAreaData.swift */; };
 		5597263B1BDABBDB00E05E59 /* Charts.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B680D3C1A9D1AD90026A057 /* Charts.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5597263C1BDABC0500E05E59 /* ChartDefaultXAxisValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6654D51BB0A86F00890030 /* ChartDefaultXAxisValueFormatter.swift */; };
 		5597263D1BDABC0500E05E59 /* ChartFillFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6654D61BB0A86F00890030 /* ChartFillFormatter.swift */; };
@@ -389,6 +395,8 @@
 		06AEE7A61BDC3F8B009875AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06AEE7AD1BDC3FC6009875AE /* LineChartTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartTests.swift; sourceTree = "<group>"; };
 		06AEE7C11BDC4277009875AE /* FBSnapshotTestCase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSnapshotTestCase.framework; path = Carthage/Build/iOS/FBSnapshotTestCase.framework; sourceTree = "<group>"; };
+		4FA0A3C11DF85E780021E791 /* ChartCallout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartCallout.swift; sourceTree = "<group>"; };
+		4FA0A3C51DF85EA30021E791 /* ChartXAxisAreaData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartXAxisAreaData.swift; sourceTree = "<group>"; };
 		55E356521ADC63BF00A57971 /* BubbleChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BubbleChartView.swift; sourceTree = "<group>"; };
 		55E3565A1ADC63EB00A57971 /* BubbleChartRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BubbleChartRenderer.swift; sourceTree = "<group>"; };
 		5B0032441B6524AD00B6A2FE /* ChartHighlight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartHighlight.swift; sourceTree = "<group>"; };
@@ -713,6 +721,7 @@
 			isa = PBXGroup;
 			children = (
 				5BA8EC6A1A9D151C00CE82E1 /* ChartAxisBase.swift */,
+				4FA0A3C11DF85E780021E791 /* ChartCallout.swift */,
 				5B6556F61AB72BA000FFBFD3 /* ChartComponentBase.swift */,
 				5BA8EC6B1A9D151C00CE82E1 /* ChartLegend.swift */,
 				5BA8EC6C1A9D151C00CE82E1 /* ChartLimitLine.swift */,
@@ -827,6 +836,7 @@
 		65F06F701BE7F6D30074498D /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				4FA0A3C51DF85EA30021E791 /* ChartXAxisAreaData.swift */,
 				65F06FA91BE818AA0074498D /* IBarChartDataSet.swift */,
 				65F06F931BE812210074498D /* IBarLineScatterCandleBubbleChartDataSet.swift */,
 				65F06FA01BE815220074498D /* IBubbleChartDataSet.swift */,
@@ -958,10 +968,11 @@
 				TargetAttributes = {
 					06AEE7A11BDC3F8B009875AE = {
 						CreatedOnToolsVersion = 7.1;
+						LastSwiftMigration = 0810;
 					};
 					5BA8EC3F1A9D14DC00CE82E1 = {
 						CreatedOnToolsVersion = 6.1.1;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0810;
 					};
 					65B3F5BE1C7370BE000983D0 = {
 						CreatedOnToolsVersion = 7.2.1;
@@ -1056,12 +1067,14 @@
 				5BCAA74A1C7CAA4E00F83F3B /* ChartViewPortJob.swift in Sources */,
 				5BD4C5821BCDBF6C00462351 /* ScatterChartDataProvider.swift in Sources */,
 				5B6A54931AA66AAB000F57C2 /* CombinedChartRenderer.swift in Sources */,
+				4FA0A3C21DF85E780021E791 /* ChartCallout.swift in Sources */,
 				659400C01BF463C1004F9C27 /* LineChartDataSet.swift in Sources */,
 				659400CE1BF463C2004F9C27 /* ScatterChartData.swift in Sources */,
 				659400D01BF463C2004F9C27 /* ScatterChartDataSet.swift in Sources */,
 				659400B21BF463C1004F9C27 /* CandleChartDataEntry.swift in Sources */,
 				659400B61BF463C1004F9C27 /* ChartData.swift in Sources */,
 				5B680D221A9D17C30026A057 /* ChartXAxis.swift in Sources */,
+				4FA0A3C61DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */,
 				5BA8EC891A9D151C00CE82E1 /* ChartDataBaseFilter.swift in Sources */,
 				659400A21BF463C1004F9C27 /* BarChartDataEntry.swift in Sources */,
 				5BCAA7501C7CAD4C00F83F3B /* AnimatedViewPortJob.swift in Sources */,
@@ -1176,12 +1189,14 @@
 				65B3F5D61C7370E5000983D0 /* ChartComponentBase.swift in Sources */,
 				65B3F5D71C7370E5000983D0 /* ChartLegend.swift in Sources */,
 				65B3F5D81C7370E5000983D0 /* ChartLimitLine.swift in Sources */,
+				4FA0A3C41DF85E780021E791 /* ChartCallout.swift in Sources */,
 				65B3F5D91C7370E5000983D0 /* ChartMarker.swift in Sources */,
 				65B3F5DA1C7370E5000983D0 /* ChartXAxis.swift in Sources */,
 				5B9A0C251C83A7E200ED8ED8 /* MoveChartViewJob.swift in Sources */,
 				65B3F5DB1C7370E5000983D0 /* ChartYAxis.swift in Sources */,
 				65B3F5DC1C7370E5000983D0 /* IBarChartDataSet.swift in Sources */,
 				65B3F5DD1C7370E5000983D0 /* IBarLineScatterCandleBubbleChartDataSet.swift in Sources */,
+				4FA0A3C81DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */,
 				65B3F5DE1C7370E5000983D0 /* IBubbleChartDataSet.swift in Sources */,
 				65B3F5DF1C7370E5000983D0 /* ICandleChartDataSet.swift in Sources */,
 				65B3F5E01C7370E5000983D0 /* IChartDataSet.swift in Sources */,
@@ -1296,12 +1311,14 @@
 				5BCAA74B1C7CAA4E00F83F3B /* ChartViewPortJob.swift in Sources */,
 				559726451BDABC0500E05E59 /* LineChartDataProvider.swift in Sources */,
 				559726461BDABC0500E05E59 /* ScatterChartDataProvider.swift in Sources */,
+				4FA0A3C31DF85E780021E791 /* ChartCallout.swift in Sources */,
 				659400C11BF463C1004F9C27 /* LineChartDataSet.swift in Sources */,
 				659400CF1BF463C2004F9C27 /* ScatterChartData.swift in Sources */,
 				659400D11BF463C2004F9C27 /* ScatterChartDataSet.swift in Sources */,
 				659400B31BF463C1004F9C27 /* CandleChartDataEntry.swift in Sources */,
 				659400B71BF463C1004F9C27 /* ChartData.swift in Sources */,
 				A52C5C3F1BAC5D1100594CDD /* ChartAnimator.swift in Sources */,
+				4FA0A3C71DF85EA30021E791 /* ChartXAxisAreaData.swift in Sources */,
 				A52C5C401BAC5D1100594CDD /* ChartAnimationEasing.swift in Sources */,
 				659400A31BF463C1004F9C27 /* BarChartDataEntry.swift in Sources */,
 				5BCAA7511C7CAD4C00F83F3B /* AnimatedViewPortJob.swift in Sources */,
@@ -1419,6 +1436,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pierremarcairoldi.ChartsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -1438,6 +1456,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pierremarcairoldi.ChartsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
