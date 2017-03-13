@@ -32,6 +32,7 @@
     
     self.options = @[
                      @{@"key": @"toggleValues", @"label": @"Toggle Values"},
+                     @{@"key": @"toggleIcons", @"label": @"Toggle Icons"},
                      @{@"key": @"toggleHighlight", @"label": @"Toggle Highlight"},
                      @{@"key": @"animateX", @"label": @"Animate X"},
                      @{@"key": @"animateY", @"label": @"Animate Y"},
@@ -72,11 +73,15 @@
     rightAxis.drawGridLinesEnabled = NO;
     rightAxis.axisMinimum = 0.0; // this replaces startAtZero = YES
     
-    _chartView.legend.position = ChartLegendPositionBelowChartLeft;
-    _chartView.legend.form = ChartLegendFormSquare;
-    _chartView.legend.formSize = 8.0;
-    _chartView.legend.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11.f];
-    _chartView.legend.xEntrySpace = 4.0;
+    ChartLegend *l = _chartView.legend;
+    l.horizontalAlignment = ChartLegendHorizontalAlignmentLeft;
+    l.verticalAlignment = ChartLegendVerticalAlignmentBottom;
+    l.orientation = ChartLegendOrientationHorizontal;
+    l.drawInside = NO;
+    l.form = ChartLegendFormSquare;
+    l.formSize = 8.0;
+    l.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11.f];
+    l.xEntrySpace = 4.0;
 
     _chartView.fitBars = YES;
     
@@ -115,7 +120,7 @@
     {
         double mult = (range + 1);
         double val = (double) (arc4random_uniform(mult));
-        [yVals addObject:[[BarChartDataEntry alloc] initWithX:i * spaceForBar y:val]];
+        [yVals addObject:[[BarChartDataEntry alloc] initWithX:i * spaceForBar y:val icon: [UIImage imageNamed:@"icon"]]];
     }
     
     BarChartDataSet *set1 = nil;
@@ -129,6 +134,8 @@
     else
     {
         set1 = [[BarChartDataSet alloc] initWithValues:yVals label:@"DataSet"];
+        
+        set1.drawIconsEnabled = NO;
         
         NSMutableArray *dataSets = [[NSMutableArray alloc] init];
         [dataSets addObject:set1];

@@ -33,6 +33,7 @@
     
     self.options = @[
                      @{@"key": @"toggleValues", @"label": @"Toggle Values"},
+                     @{@"key": @"toggleIcons", @"label": @"Toggle Icons"},
                      @{@"key": @"toggleHighlight", @"label": @"Toggle Highlight"},
                      @{@"key": @"animateX", @"label": @"Animate X"},
                      @{@"key": @"animateY", @"label": @"Animate Y"},
@@ -84,11 +85,15 @@
     rightAxis.spaceTop = 0.15;
     rightAxis.axisMinimum = 0.0; // this replaces startAtZero = YES
     
-    _chartView.legend.position = ChartLegendPositionBelowChartLeft;
-    _chartView.legend.form = ChartLegendFormSquare;
-    _chartView.legend.formSize = 9.0;
-    _chartView.legend.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11.f];
-    _chartView.legend.xEntrySpace = 4.0;
+    ChartLegend *l = _chartView.legend;
+    l.horizontalAlignment = ChartLegendHorizontalAlignmentLeft;
+    l.verticalAlignment = ChartLegendVerticalAlignmentBottom;
+    l.orientation = ChartLegendOrientationHorizontal;
+    l.drawInside = NO;
+    l.form = ChartLegendFormSquare;
+    l.formSize = 9.0;
+    l.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11.f];
+    l.xEntrySpace = 4.0;
     
     XYMarkerView *marker = [[XYMarkerView alloc]
                                   initWithColor: [UIColor colorWithWhite:180/255. alpha:1.0]
@@ -124,10 +129,7 @@
 
 - (void)setDataCount:(int)count range:(double)range
 {
-    double start = 0.0;
-    
-    _chartView.xAxis.axisMinimum = start;
-    _chartView.xAxis.axisMaximum = start + count + 2;
+    double start = 1.0;
     
     NSMutableArray *yVals = [[NSMutableArray alloc] init];
     
@@ -135,7 +137,11 @@
     {
         double mult = (range + 1);
         double val = (double) (arc4random_uniform(mult));
-        [yVals addObject:[[BarChartDataEntry alloc] initWithX:(double)i + 1.0 y:val]];
+        if (arc4random_uniform(100) < 25) {
+            [yVals addObject:[[BarChartDataEntry alloc] initWithX:val y:i icon: [UIImage imageNamed:@"icon"]]];
+        } else {
+            [yVals addObject:[[BarChartDataEntry alloc] initWithX:val y:i]];
+        }
     }
     
     BarChartDataSet *set1 = nil;
@@ -150,6 +156,7 @@
     {
         set1 = [[BarChartDataSet alloc] initWithValues:yVals label:@"The year 2017"];
         [set1 setColors:ChartColorTemplates.material];
+        set1.drawIconsEnabled = NO;
         
         NSMutableArray *dataSets = [[NSMutableArray alloc] init];
         [dataSets addObject:set1];

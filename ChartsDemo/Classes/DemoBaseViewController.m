@@ -83,6 +83,16 @@
         [chartView setNeedsDisplay];
     }
     
+    if ([key isEqualToString:@"toggleIcons"])
+    {
+        for (id<IChartDataSet> set in chartView.data.dataSets)
+        {
+            set.drawIconsEnabled = !set.isDrawIconsEnabled;
+        }
+        
+        [chartView setNeedsDisplay];
+    }
+    
     if ([key isEqualToString:@"toggleHighlight"])
     {
         chartView.data.highlightEnabled = !chartView.data.isHighlightEnabled;
@@ -106,7 +116,7 @@
     
     if ([key isEqualToString:@"saveToGallery"])
     {
-        [chartView saveToCameraRoll];
+        UIImageWriteToSavedPhotosAlbum([chartView getChartImageWithTransparent:NO], nil, nil, nil);
     }
     
     if ([key isEqualToString:@"togglePinchZoom"])
@@ -262,7 +272,7 @@
     chartView.drawSlicesUnderHoleEnabled = NO;
     chartView.holeRadiusPercent = 0.58;
     chartView.transparentCircleRadiusPercent = 0.61;
-    chartView.descriptionText = @"";
+    chartView.chartDescription.enabled = NO;
     [chartView setExtraOffsetsWithLeft:5.f top:10.f right:5.f bottom:5.f];
     
     chartView.drawCenterTextEnabled = YES;
@@ -292,7 +302,10 @@
     chartView.highlightPerTapEnabled = YES;
     
     ChartLegend *l = chartView.legend;
-    l.position = ChartLegendPositionRightOfChart;
+    l.horizontalAlignment = ChartLegendHorizontalAlignmentRight;
+    l.verticalAlignment = ChartLegendVerticalAlignmentTop;
+    l.orientation = ChartLegendOrientationVertical;
+    l.drawInside = NO;
     l.xEntrySpace = 7.0;
     l.yEntrySpace = 0.0;
     l.yOffset = 0.0;
@@ -300,14 +313,12 @@
 
 - (void)setupRadarChartView:(RadarChartView *)chartView
 {
-    chartView.descriptionText = @"";
-    chartView.noDataTextDescription = @"You need to provide data for the chart.";
+    chartView.chartDescription.enabled = NO;
 }
 
 - (void)setupBarLineChartView:(BarLineChartViewBase *)chartView
 {
-    chartView.descriptionText = @"";
-    chartView.noDataTextDescription = @"You need to provide data for the chart.";
+    chartView.chartDescription.enabled = NO;
     
     chartView.drawGridBackgroundEnabled = NO;
     
