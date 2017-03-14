@@ -119,6 +119,8 @@ open class PieChartView: PieRadarChartViewBase
         
         drawDescription(context: context)
         
+        drawCallouts(context: context)
+        
         drawMarkers(context: context)
     }
     

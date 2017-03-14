@@ -24,6 +24,25 @@ open class BarChartData: BarLineScatterCandleBubbleChartData
         super.init(dataSets: dataSets)
     }
     
+    private var _groupSpace = CGFloat(0.8)
+    
+    /// The spacing is relative to a full bar width
+    public var groupSpace: CGFloat
+        {
+        get
+        {
+            if (_dataSets.count <= 1)
+            {
+                return 0.0
+            }
+            return _groupSpace
+        }
+        set
+        {
+            _groupSpace = newValue
+        }
+    }
+    
     /// The width of the bars on the x-axis, in values (not pixels)
     ///
     /// **default**: 0.85

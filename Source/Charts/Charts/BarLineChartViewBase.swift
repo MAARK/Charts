@@ -71,6 +71,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     internal var _xAxisRenderer: XAxisRenderer!
     
     internal var _tapGestureRecognizer: NSUITapGestureRecognizer!
+    internal var _singleTapGestureRecognizer: NSUITapGestureRecognizer!
     internal var _doubleTapGestureRecognizer: NSUITapGestureRecognizer!
     #if !os(tvOS)
     internal var _pinchGestureRecognizer: NSUIPinchGestureRecognizer!
@@ -113,6 +114,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         self.highlighter = ChartHighlighter(chart: self)
         
         _tapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized(_:)))
+        _tapGestureRecognizer.numberOfTouchesRequired = 2
+        
+        _singleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(singleTapGestureRecognized(_:)))
+        
         _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
         _doubleTapGestureRecognizer.nsuiNumberOfTapsRequired = 2
         _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
@@ -201,6 +206,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
         // The renderers are responsible for clipping, to account for line-width center etc.
         _xAxisRenderer?.renderGridLines(context: context)
+        _xAxisRenderer?.renderGridAreas(context: context)
         _leftYAxisRenderer?.renderGridLines(context: context)
         _rightYAxisRenderer?.renderGridLines(context: context)
         
@@ -270,6 +276,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _legendRenderer.renderLegend(context: context)
 
         drawDescription(context: context)
+        
+        drawCallouts(context: context)
         
         drawMarkers(context: context)
     }
@@ -497,6 +505,27 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
     }
     
+    
+    open override func getCalloutPosition(callout: ChartCallout) -> CGPoint
+    {
+        var pt = callout.position
+        
+        if scaleX == 1 && scaleY == 1 && _viewPortHandler.transX == 0 && _viewPortHandler.transY == 0 {
+            getTransformer(forAxis: .left).pixelToValues(&pt)
+            
+            callout.valuePoint = pt
+        } else {
+            pt = callout.valuePoint
+        }
+        
+        getTransformer(forAxis: .left).pointValueToPixel(&pt)
+        
+        let position = CGPoint(x: pt.x, y: pt.y)
+        
+        return position
+        
+    }
+    
     // MARK: - Gestures
     
     fileprivate enum GestureScaleAxis
@@ -532,7 +561,27 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             
             let h = getHighlightByTouchPoint(recognizer.location(in: self))
             
-            if h === nil || h!.isEqual(self.lastHighlighted)
+            if callouts != nil {
+                let point = recognizer.location(in: self)
+                
+                for callout in callouts!
+                {
+                    guard let rect = callout.rect else { continue }
+                    
+                    if rect.contains(point)
+                    {
+                        if (delegate !== nil)
+                        {
+                            delegate?.chartCalloutTapped?(self, callout: callout)
+                            break
+                        }
+                    }
+                }
+            }
+
+            // MAARK - this prevents the market from disappearing when it
+            // is same as previous
+            if h === nil /* || h!.isEqual(self.lastHighlighted)*/
             {
                 self.highlightValue(nil, callDelegate: true)
                 self.lastHighlighted = nil
@@ -541,6 +590,33 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             {
                 self.highlightValue(h, callDelegate: true)
                 self.lastHighlighted = h
+            }
+        }
+    }
+    
+    @objc fileprivate func singleTapGestureRecognized(_ recognizer: NSUITapGestureRecognizer)
+    {
+
+        stopDeceleration()
+        
+        if (recognizer.state == NSUIGestureRecognizerState.ended)
+        {
+            if callouts != nil {
+                let point = recognizer.location(in: self)
+                
+                for callout in callouts!
+                {
+                    guard let rect = callout.rect else { continue }
+                    
+                    if rect.contains(point)
+                    {
+                        if (delegate !== nil)
+                        {
+                            delegate?.chartCalloutTapped?(self, callout: callout)
+                            break
+                        }
+                    }
+                }
             }
         }
     }

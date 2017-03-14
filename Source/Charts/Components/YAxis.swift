@@ -87,6 +87,9 @@ open class YAxis: AxisBase
     /// **default**: CGFloat.infinity
     open var maxWidth = CGFloat(CGFloat.infinity)
     
+    
+    
+    
     public override init()
     {
         super.init()
@@ -121,6 +124,44 @@ open class YAxis: AxisBase
     open func getRequiredHeightSpace() -> CGFloat
     {
         return requiredSize().height
+    }
+    
+    open override func getLongestLabel() -> String
+    {
+        var longest = ""
+        
+        if hideLabels
+        {
+            return longest
+        }
+        
+        if axisDependency == .right && useDataSetLabelForAxisLabel
+        {
+            guard let dataSets = self.dataSets else { return longest }
+            
+            for set in dataSets
+            {
+                guard let setLabel = set.label else { continue }
+                
+                if longest.characters.count < setLabel.characters.count
+                {
+                    longest = setLabel
+                }
+            }
+        }
+        else
+        {
+            for i in 0 ..< entries.count
+            {
+                let text = getFormattedLabel(i)
+                
+                if longest.characters.count < text.characters.count
+                {
+                    longest = text
+                }
+            }
+        }
+        return longest
     }
     
     /// - returns: `true` if this axis needs horizontal offset, `false` ifno offset is needed.

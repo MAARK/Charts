@@ -33,6 +33,12 @@ public protocol ChartViewDelegate
     
     // Callbacks when the chart is moved / translated via drag gesture.
     @objc optional func chartTranslated(_ chartView: ChartViewBase, dX: CGFloat, dY: CGFloat)
+    
+    
+    // Callbacks when the chart is moved / translated via drag gesture.
+    @objc optional func chartCalloutTapped(_ chartView: ChartViewBase, callout: ChartCallout)
+    
+    @objc optional func chartHideDataMarker(_ chartView: ChartViewBase)
 }
 
 open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
@@ -46,6 +52,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         return _xAxis
     }
+    
+    /// MAARK
+    open var disableHighlighting: Bool = false
     
     /// The default IValueFormatter that has been determined by the chart considering the provided minimum and maximum values.
     internal var _defaultValueFormatter: IValueFormatter? = DefaultValueFormatter(decimals: 0)
@@ -73,10 +82,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// This should have been called just "description", but
     open var chartDescription: Description?
     
+    /// MAARK
+    open var multipleMarkersEnabled: Bool = false
+    
     /// This property is deprecated - Use `chartDescription.text` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.text` instead.")
     open var descriptionText: String
-    {
+        {
         get { return chartDescription?.text ?? "" }
         set { chartDescription?.text = newValue }
     }
@@ -84,7 +96,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// This property is deprecated - Use `chartDescription.font` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.font` instead.")
     open var descriptionFont: NSUIFont?
-    {
+        {
         get { return chartDescription?.font }
         set
         {
@@ -98,7 +110,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// This property is deprecated - Use `chartDescription.textColor` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.textColor` instead.")
     open var descriptionTextColor: NSUIColor?
-    {
+        {
         get { return chartDescription?.textColor }
         set
         {
@@ -112,7 +124,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// This property is deprecated - Use `chartDescription.textAlign` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.textAlign` instead.")
     open var descriptionTextAlign: NSTextAlignment
-    {
+        {
         get { return chartDescription?.textAlign ?? NSTextAlignment.right }
         set { chartDescription?.textAlign = newValue }
     }
@@ -120,7 +132,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// This property is deprecated - Use `chartDescription.position` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.position` instead.")
     open var descriptionTextPosition: CGPoint?
-    {
+        {
         get { return chartDescription?.position }
         set { chartDescription?.position = newValue }
     }
@@ -162,6 +174,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     open var drawMarkers = true
+    open var areaMarkers = false
     
     /// - returns: `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
@@ -169,6 +182,12 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The marker that is displayed when a value is clicked on the chart
     open var marker: IMarker?
+    
+    /// if set to true, the marker is drawn
+    open var drawCallout = true
+    
+    /// the view that represents the callout
+    open var callouts: [ChartCallout]?
     
     fileprivate var _interceptTouchEvents = false
     
@@ -197,10 +216,10 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     public override init(frame: CGRect)
     {
         super.init(frame: frame)
-
-		#if os(iOS)
-			self.backgroundColor = NSUIColor.clear
-		#endif
+        
+        #if os(iOS)
+            self.backgroundColor = NSUIColor.clear
+        #endif
         initialize()
     }
     
@@ -220,7 +239,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         _animator = Animator()
         _animator.delegate = self
-
+        
         _viewPortHandler = ViewPortHandler()
         _viewPortHandler.setChartDimens(width: bounds.size.width, height: bounds.size.height)
         
@@ -239,7 +258,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The data for the chart
     open var data: ChartData?
-    {
+        {
         get
         {
             return _data
@@ -285,12 +304,12 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         _data?.clearValues()
         setNeedsDisplay()
     }
-
+    
     /// - returns: `true` if the chart is empty (meaning it's data object is either null or contains no entries).
     open func isEmpty() -> Bool
     {
         guard let data = _data else { return true }
-
+        
         if data.entryCount <= 0
         {
             return true
@@ -337,14 +356,14 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             reference = absMin > absMax ? absMin : absMax
         }
         
-    
+        
         if _defaultValueFormatter is DefaultValueFormatter
         {
             // setup the formatter with a new number of digits
             let digits = ChartUtils.decimals(reference)
             
             (_defaultValueFormatter as? DefaultValueFormatter)?.decimals
-             = digits
+                = digits
         }
     }
     
@@ -354,7 +373,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         guard let context = optionalContext else { return }
         
         let frame = self.bounds
-
+        
         if _data === nil && noDataText.characters.count > 0
         {
             context.saveGState()
@@ -393,7 +412,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             else { return }
         
         var position = description.position
-
+        
         // if no position specified, draw on default position
         if position == nil
         {
@@ -407,7 +426,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         
         attrs[NSFontAttributeName] = description.font
         attrs[NSForegroundColorAttributeName] = description.textColor
-
+        
         ChartUtils.drawText(
             context: context,
             text: descriptionText,
@@ -428,7 +447,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// Values can still be highlighted via drag or programmatically.
     /// **default**: true
     open var highlightPerTapEnabled: Bool
-    {
+        {
         get { return _highlightPerTapEnabled }
         set { _highlightPerTapEnabled = newValue }
     }
@@ -443,11 +462,17 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// - returns: `true` if there are values to highlight, `false` ifthere are no values to highlight.
     open func valuesToHighlight() -> Bool
     {
-        return _indicesToHighlight.count > 0
+        // MAARK
+        if (!disableHighlighting) {
+            return _indicesToHighlight.count > 0
+        }
+        else {
+            return false
+        }
     }
-
+    
     /// Highlights the values at the given indices in the given DataSets. Provide
-    /// null or an empty array to undo all highlighting. 
+    /// null or an empty array to undo all highlighting.
     /// This should be used to programmatically highlight values.
     /// This method *will not* call the delegate.
     open func highlightValues(_ highs: [Highlight]?)
@@ -463,7 +488,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         {
             self.lastHighlighted = _indicesToHighlight[0]
         }
-
+        
         // redraw the chart
         setNeedsDisplay()
     }
@@ -530,7 +555,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         highlightValue(highlight, callDelegate: false)
     }
-
+    
     /// Highlights the value selected by touch gesture.
     open func highlightValue(_ highlight: Highlight?, callDelegate: Bool)
     {
@@ -545,30 +570,66 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         {
             // set the indices to highlight
             entry = _data?.entryForHighlight(h!)
-            if entry == nil
-            {
-                h = nil
+            
+            if multipleMarkersEnabled {
+                
                 _indicesToHighlight.removeAll(keepingCapacity: false)
+                
+                guard let data = _data else { return }
+                
+                for i in 0...data.dataSets.count - 1 {
+                    let dSet = data.dataSets[i]
+                    
+                    let val = dSet.entryForIndex(h!.dataIndex)
+
+                    h = Highlight(x: h!.x,
+                                  y: h!.y,
+                                  dataSetIndex: i)
+                    
+                    _indicesToHighlight.append(h!)
+                }
+                
+                if let hi = _indicesToHighlight.first {
+                    if (callDelegate && delegate != nil)
+                    {
+                        if (h == nil)
+                        {
+                            delegate!.chartValueNothingSelected?(self)
+                        }
+                        else
+                        {
+                            // notify the listener
+                            delegate!.chartValueSelected?(self, entry: entry!, highlight: h!)
+                        }
+                    }
+                }
+            } else {
+                // set the indices to highlight
+                
+                if entry == nil
+                {
+                    h = nil
+                    _indicesToHighlight.removeAll(keepingCapacity: false)
+                }
+                else
+                {
+                    _indicesToHighlight = [h!]
+                }
             }
-            else
+            
+            if callDelegate && delegate != nil
             {
-                _indicesToHighlight = [h!]
+                if h == nil
+                {
+                    delegate!.chartValueNothingSelected?(self)
+                }
+                else
+                {
+                    // notify the listener
+                    delegate!.chartValueSelected?(self, entry: entry!, highlight: h!)
+                }
             }
         }
-        
-        if callDelegate && delegate != nil
-        {
-            if h == nil
-            {
-                delegate!.chartValueNothingSelected?(self)
-            }
-            else
-            {
-                // notify the listener
-                delegate!.chartValueSelected?(self, entry: entry!, highlight: h!)
-            }
-        }
-        
         // redraw the chart
         setNeedsDisplay()
     }
@@ -586,12 +647,12 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         
         return self.highlighter?.getHighlight(x: pt.x, y: pt.y)
     }
-
+    
     /// The last value that was highlighted via touch.
     open var lastHighlighted: Highlight?
-  
+    
     // MARK: - Markers
-
+    
     /// draws all MarkerViews on the highlighted positions
     internal func drawMarkers(context: CGContext)
     {
@@ -616,21 +677,106 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             {
                 continue
             }
-
+            
             let pos = getMarkerPosition(highlight: highlight)
-
+            
             // check bounds
             if !_viewPortHandler.isInBounds(x: pos.x, y: pos.y)
             {
                 continue
             }
-
+            
             // callbacks to update the content
             marker.refreshContent(entry: e, highlight: highlight)
             
-            // draw the marker
-            marker.draw(context: context, point: pos)
+            if areaMarkers == true
+            {
+                drawAreaMakerInContext(context: context, highlight: highlight, pos: pos)
+            } else
+            {
+                // draw the marker
+                marker.draw(context: context, point: pos)
+            }
         }
+    }
+    
+    internal func drawAreaMakerInContext(context: CGContext, highlight: Highlight, pos: CGPoint)
+    {
+        guard let dataSet = _data?.dataSets[highlight.dataSetIndex] as? LineChartDataSet else { return }
+        
+        guard let setColor = dataSet.colors.first else { return }
+        
+        let formsize: CGFloat = 14
+        let formColor = setColor.withAlphaComponent(0.5)
+        
+        let frame = CGRect(x: pos.x - (formsize / 2), y: pos.y - (formsize / 2), width: formsize, height: formsize)
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+        
+        context.setLineWidth(4.0)
+        
+        context.setStrokeColor(UIColor.white.cgColor)
+        
+        context.addEllipse(in: frame)
+        context.strokePath()
+        
+        context.setFillColor(formColor.cgColor)
+        context.fillEllipse(in: frame)
+    }
+    
+    // MARK: - Callouts
+    
+    internal func drawCallouts(context context: CGContext)
+    {
+        if (callouts == nil || !drawCallout)
+        {
+            return
+        }
+        
+        for callout in callouts!
+        {
+            
+            var pos = getCalloutPosition(callout: callout)
+            
+            let offset: CGFloat = 22
+            
+            if !_viewPortHandler.isInBoundsLeft(pos.x + offset - 10) {
+                pos.x = offset - 10
+            }
+            
+            if !_viewPortHandler.isInBoundsRight(pos.x + offset) {
+                pos.x = _viewPortHandler.contentRect.origin.x + _viewPortHandler.contentRect.size.width - offset
+            }
+            
+            if !_viewPortHandler.isInBoundsBottom(pos.y + offset) {
+                pos.y = _viewPortHandler.chartHeight - offset - 20
+            }
+            
+            if !_viewPortHandler.isInBoundsTop(pos.y) {
+                pos.y = 0
+            }
+            
+            callout.draw(context: context, point: pos)
+        }
+        
+    }
+    
+    public func renderCallouts(context: CGContext, callout: ChartCallout)
+    {
+        fatalError("renderCallouts() cannot be called on ChartViewBase")
+    }
+    
+    /// - returns: the actual position in pixels of the Callout
+    public func getCalloutPosition(callout: ChartCallout) -> CGPoint
+    {
+        fatalError("getCalloutPosition() cannot be called on ChartViewBase")
+    }
+    
+    /// - returns: the actual position in pixels of the MarkerView for the given Entry in the given DataSet.
+    public func getMarkerPosition(entry entry: ChartDataEntry, highlight: Highlight) -> CGPoint
+    {
+        fatalError("getMarkerPosition() cannot be called on ChartViewBase")
     }
     
     /// - returns: The actual position in pixels of the MarkerView for the given Entry in the given DataSet.
@@ -751,13 +897,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     }
     
     // MARK: - Accessors
-
+    
     /// - returns: The current y-max value across all DataSets
     open var chartYMax: Double
     {
         return _data?.yMax ?? 0.0
     }
-
+    
     /// - returns: The current y-min value across all DataSets
     open var chartYMin: Double
     {
@@ -869,7 +1015,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// - returns: `true` if the image was saved successfully
     open func save(to path: String, format: ImageFormat, compressionQuality: Double) -> Bool
     {
-		guard let image = getChartImage(transparent: format != .jpeg)
+        guard let image = getChartImage(transparent: format != .jpeg)
             else { return false }
         
         var imageData: Data!
@@ -893,7 +1039,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             return false
         }
         
-		return true
+        return true
     }
     
     internal var _viewportJobs = [ViewPortJob]()
@@ -906,7 +1052,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             
             if (_viewPortHandler !== nil &&
                 (bounds.size.width != _viewPortHandler.chartWidth ||
-                bounds.size.height != _viewPortHandler.chartHeight))
+                    bounds.size.height != _viewPortHandler.chartHeight))
             {
                 _viewPortHandler.setChartDimens(width: bounds.size.width, height: bounds.size.height)
                 
@@ -950,16 +1096,16 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// **default**: true
     /// - returns: `true` if chart continues to scroll after touch up, `false` ifnot.
     open var isDragDecelerationEnabled: Bool
-        {
-            return dragDecelerationEnabled
+    {
+        return dragDecelerationEnabled
     }
     
     /// Deceleration friction coefficient in [0 ; 1] interval, higher values indicate that speed will decrease slowly, for example if it set to 0, it will stop immediately.
     /// 1 is an invalid value, and will be converted to 0.999 automatically.
-    /// 
+    ///
     /// **default**: true
     open var dragDecelerationFrictionCoef: CGFloat
-    {
+        {
         get
         {
             return _dragDecelerationFrictionCoef

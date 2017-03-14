@@ -41,6 +41,18 @@ open class AxisBase: ComponentBase
     open var drawGridLinesEnabled = true
     open var drawAxisLineEnabled = true
     
+    /// MAARK
+    open var drawGridAreasEnabled = true
+    open var filledAreaTopOffset: CGFloat = 0
+    open var axisLabelIsDate: Bool = false
+    open var dateFormatter: DateFormatter = DateFormatter()
+    open var onlyFormatSignificantLabels: Bool = false
+    open var useDataSetLabelForAxisLabel: Bool = false
+    open var dataSets: [IChartDataSet]?
+    open var hideLabels: Bool = false
+    open var drawTopBorder: Bool = false
+    open var topBorderColor: UIColor = UIColor.black
+    
     /// flag that indicates of the labels of this axis should be drawn or not
     open var drawLabelsEnabled = true
     
@@ -178,6 +190,8 @@ open class AxisBase: ComponentBase
     }
     
     open var isDrawGridLinesEnabled: Bool { return drawGridLinesEnabled }
+    
+    open var isDrawGridAreasEnabled: Bool { return drawGridAreasEnabled; }
     
     open var isDrawAxisLineEnabled: Bool { return drawAxisLineEnabled }
     

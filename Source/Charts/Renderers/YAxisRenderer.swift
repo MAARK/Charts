@@ -138,6 +138,11 @@ open class YAxisRenderer: AxisRendererBase
             let yAxis = self.axis as? YAxis
             else { return }
         
+        if yAxis.hideLabels
+        {
+            return
+        }
+        
         let labelFont = yAxis.labelFont
         let labelTextColor = yAxis.labelTextColor
         
@@ -202,6 +207,18 @@ open class YAxisRenderer: AxisRendererBase
         {
             // draw zero line
             drawZeroLine(context: context)
+        }
+        
+        if yAxis.drawTopBorder
+        {
+            context.saveGState()
+            
+            context.setStrokeColor(yAxis.topBorderColor.cgColor)
+            context.setLineWidth(yAxis.gridLineWidth)
+            context.setLineCap(yAxis.gridLineCap)
+            
+            context.setLineDash(phase:0, lengths: yAxis.gridLineDashLengths)            
+            
         }
     }
     

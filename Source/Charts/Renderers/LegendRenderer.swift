@@ -318,6 +318,11 @@ open class LegendRenderer: Renderer
             
             var lineIndex: Int = 0
             
+            if legend.hasShadowBorder
+            {
+                drawShadow(context: context, originPosX: originPosX, originPosY: posY, legend: legend)
+            }
+            
             for i in 0 ..< entries.count
             {
                 let e = entries[i]
@@ -495,6 +500,46 @@ open class LegendRenderer: Renderer
     }
 
     fileprivate var _formLineSegmentsBuffer = [CGPoint](repeating: CGPoint(), count: 2)
+    
+    /// Draws shadow around legend
+    
+    public func drawShadow(context context: CGContext, originPosX: CGFloat, originPosY: CGFloat, legend: Legend)
+    {
+        let shadowOffset = CGSize(width: 0, height: 2)
+        let blur: CGFloat = 10
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+        
+        context.setShadow(offset: shadowOffset, blur: blur, color: UIColor(white: 0, alpha: 0.2).cgColor)
+        
+        let offset: CGFloat = 5
+        let rectangle = CGRect(x: originPosX - (offset * 2), y: originPosY - offset, width: legend.neededWidth + (offset * 4), height: legend.neededHeight + (offset * 2))
+        
+        let cornerRadius: CGFloat = 3
+        
+        context.setStrokeColor(legend.legendBackgroundColor.cgColor)
+        context.setFillColor(legend.legendBackgroundColor.cgColor)
+        
+        let minX = rectangle.minX
+        let midX = rectangle.midX
+        let maxX = rectangle.maxX
+        
+        let minY = rectangle.minY
+        let midY = rectangle.midY
+        let maxY = rectangle.maxY
+        
+        context.move(to: CGPoint(x: minX, y: midY))
+
+        context.addArc(tangent1End: CGPoint(x: minX, y: midY), tangent2End: CGPoint(x: midX, y: midY), radius: cornerRadius)
+        context.addArc(tangent1End: CGPoint(x: maxX, y: minY), tangent2End: CGPoint(x: maxX, y: midY), radius: cornerRadius)
+        context.addArc(tangent1End: CGPoint(x: maxX, y: maxY), tangent2End: CGPoint(x: midX, y: maxY), radius: cornerRadius)
+        context.addArc(tangent1End: CGPoint(x: minX, y: maxY), tangent2End: CGPoint(x: minX, y: midY), radius: cornerRadius)
+
+        context.closePath();
+        
+        context.drawPath(using: .fillStroke)
+    }
     
     /// Draws the Legend-form at the given position with the color at the given index.
     open func drawForm(

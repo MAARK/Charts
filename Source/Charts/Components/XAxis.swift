@@ -25,6 +25,9 @@ open class XAxis: AxisBase
         case bottomInside
     }
     
+    /// MAARK custom
+    open var filledAreas: [ChartXAxisAreaData] = []
+    
     /// width of the x-axis labels in pixels - this is automatically calculated by the `computeSize()` methods in the renderers
     open var labelWidth = CGFloat(1.0)
     
@@ -72,4 +75,5 @@ open class XAxis: AxisBase
     {
         return avoidFirstLastClippingEnabled
     }
+    
 }

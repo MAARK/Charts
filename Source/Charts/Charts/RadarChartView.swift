@@ -145,6 +145,8 @@ open class RadarChartView: PieRadarChartViewBase
         _legendRenderer.renderLegend(context: context)
 
         drawDescription(context: context)
+        
+        drawCallouts(context: context)
 
         drawMarkers(context: context)
     }
