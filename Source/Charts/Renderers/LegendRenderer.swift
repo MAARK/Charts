@@ -514,7 +514,8 @@ open class LegendRenderer: Renderer
         context.setShadow(offset: shadowOffset, blur: blur, color: UIColor(white: 0, alpha: 0.2).cgColor)
         
         let offset: CGFloat = 5
-        let rectangle = CGRect(x: originPosX - (offset * 2), y: originPosY - offset, width: legend.neededWidth + (offset * 4), height: legend.neededHeight + (offset * 2))
+
+        let rectangle = CGRect(x: originPosX - (offset * 2), y: originPosY - offset, width: legend.neededWidth + (offset * 4), height: legend.neededHeight)
         
         let cornerRadius: CGFloat = 3
         
@@ -531,11 +532,11 @@ open class LegendRenderer: Renderer
         
         context.move(to: CGPoint(x: minX, y: midY))
 
-        context.addArc(tangent1End: CGPoint(x: minX, y: midY), tangent2End: CGPoint(x: midX, y: midY), radius: cornerRadius)
+        context.addArc(tangent1End: CGPoint(x: minX, y: minY), tangent2End: CGPoint(x: midX, y: midY), radius: cornerRadius)
         context.addArc(tangent1End: CGPoint(x: maxX, y: minY), tangent2End: CGPoint(x: maxX, y: midY), radius: cornerRadius)
         context.addArc(tangent1End: CGPoint(x: maxX, y: maxY), tangent2End: CGPoint(x: midX, y: maxY), radius: cornerRadius)
         context.addArc(tangent1End: CGPoint(x: minX, y: maxY), tangent2End: CGPoint(x: minX, y: midY), radius: cornerRadius)
-
+      
         context.closePath();
         
         context.drawPath(using: .fillStroke)
