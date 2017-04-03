@@ -84,7 +84,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// MAARK
     open var multipleMarkersEnabled: Bool = false
-    
+    open var drawDiagonal: Bool = false
+  
     /// This property is deprecated - Use `chartDescription.text` instead.
     @available(*, deprecated: 1.0, message: "Use `chartDescription.text` instead.")
     open var descriptionText: String
@@ -571,6 +572,22 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             // set the indices to highlight
             entry = _data?.entryForHighlight(h!)
             
+            for set in (data?.dataSets)! {
+
+                if let s = set as? BubbleChartDataSet {
+                    
+                    s.values.map({
+                        if let e = $0 as? BubbleChartDataEntry { e.drawValue = false }
+                    })
+                }
+                
+            }
+      
+            
+            if let e = entry as? BubbleChartDataEntry {
+                e.drawValue = true
+            }
+            
             if multipleMarkersEnabled {
                 
                 _indicesToHighlight.removeAll(keepingCapacity: false)
@@ -761,7 +778,27 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         }
         
     }
-    
+  
+    // MARK: - Diagonal
+  
+    internal func drawDiagonal(context context: CGContext)
+    {
+      let color = UIColor(red: 205/255, green: 206/255, blue: 207/255, alpha: 1)
+      
+      context.saveGState()
+      defer { context.restoreGState() }
+      
+      context.setLineWidth(3.0)
+      
+      context.setStrokeColor(color.cgColor)
+   
+      context.move(to: CGPoint(x: 25.0, y: frame.height - 15))
+
+      context.addLine(to: CGPoint(x: frame.width, y: 40))
+
+      context.strokePath()
+    }
+  
     public func renderCallouts(context: CGContext, callout: ChartCallout)
     {
         fatalError("renderCallouts() cannot be called on ChartViewBase")

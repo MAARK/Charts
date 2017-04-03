@@ -17,6 +17,14 @@ open class BubbleChartDataEntry: ChartDataEntry
     /// The size of the bubble.
     open var size = CGFloat(0.0)
     
+    // Maark additions
+    open var label: String = ""
+    open var showLabel: Bool = false
+    open var labelFont: UIFont = UIFont.systemFont(ofSize: 14)
+    open var labelColor: UIColor = UIColor.white
+    open var drawValue: Bool = false
+    // End Maark additions
+    
     public required init()
     {
         super.init()

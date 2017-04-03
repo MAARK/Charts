@@ -117,7 +117,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _tapGestureRecognizer.numberOfTouchesRequired = 2
         
         _singleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(singleTapGestureRecognized(_:)))
-        
+        _singleTapGestureRecognizer.numberOfTouchesRequired = 1
+      
         _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
         _doubleTapGestureRecognizer.nsuiNumberOfTapsRequired = 2
         _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
@@ -127,7 +128,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         self.addGestureRecognizer(_tapGestureRecognizer)
         self.addGestureRecognizer(_doubleTapGestureRecognizer)
         self.addGestureRecognizer(_panGestureRecognizer)
-        
+      
+        if (self is BubbleChartView || self is LineChartView) {
+          self.addGestureRecognizer(_singleTapGestureRecognizer)
+        }
+      
         _doubleTapGestureRecognizer.isEnabled = _doubleTapToZoomEnabled
         _panGestureRecognizer.isEnabled = _dragEnabled
 
@@ -167,7 +172,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     open override func draw(_ rect: CGRect)
     {
         super.draw(rect)
-        
+      
         if _data === nil
         {
             return
@@ -176,6 +181,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         let optionalContext = NSUIGraphicsGetCurrentContext()
         guard let context = optionalContext else { return }
 
+        if drawDiagonal {
+          drawDiagonal(context: context)
+        }
         // execute all drawing commands
         drawGridBackground(context: context)
         
@@ -280,6 +288,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         drawCallouts(context: context)
         
         drawMarkers(context: context)
+      
+
     }
     
     fileprivate var _autoScaleLastLowestVisibleX: Double?
@@ -581,7 +591,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
 
             // MAARK - this prevents the market from disappearing when it
             // is same as previous
-            if h === nil /* || h!.isEqual(self.lastHighlighted)*/
+            if h === nil  || h!.isEqual(self.lastHighlighted)
             {
                 self.highlightValue(nil, callDelegate: true)
                 self.lastHighlighted = nil
@@ -618,7 +628,28 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     }
                 }
             }
+            
+            if (self is BubbleChartView || self is LineChartView) {
+                if !self.isHighLightPerTapEnabled { return }
+                
+                let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                
+                // MAARK - this prevents the market from disappearing when it
+                // is same as previous
+                if h === nil  || h!.isEqual(self.lastHighlighted)
+                {
+                    self.highlightValue(nil, callDelegate: true)
+                    self.lastHighlighted = nil
+                }
+                else
+                {
+                    self.highlightValue(h, callDelegate: true)
+                    self.lastHighlighted = h
+                }
+            }
         }
+      
+      
     }
     
     @objc fileprivate func doubleTapGestureRecognized(_ recognizer: NSUITapGestureRecognizer)
