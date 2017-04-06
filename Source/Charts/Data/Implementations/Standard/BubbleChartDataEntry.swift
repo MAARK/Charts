@@ -18,6 +18,7 @@ open class BubbleChartDataEntry: ChartDataEntry
     open var size = CGFloat(0.0)
     
     // Maark additions
+    open var shapeSize = CGFloat(0.0)
     open var label: String = ""
     open var showLabel: Bool = false
     open var labelFont: UIFont = UIFont.systemFont(ofSize: 14)

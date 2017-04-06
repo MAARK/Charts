@@ -39,6 +39,7 @@ public protocol ChartViewDelegate
     @objc optional func chartCalloutTapped(_ chartView: ChartViewBase, callout: ChartCallout)
     
     @objc optional func chartHideDataMarker(_ chartView: ChartViewBase)
+  
 }
 
 open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate

@@ -104,6 +104,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
             
             let shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+            entry.shapeSize = shapeSize
             let shapeHalf = shapeSize / 2.0
             
             if !viewPortHandler.isInBoundsTop(_pointBuffer.y + shapeHalf)

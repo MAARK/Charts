@@ -113,22 +113,27 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         
         self.highlighter = ChartHighlighter(chart: self)
         
-        _tapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized(_:)))
-        _tapGestureRecognizer.numberOfTouchesRequired = 2
+        //_tapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized(_:)))
+        //_tapGestureRecognizer.numberOfTouchesRequired = 1
         
         _singleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(singleTapGestureRecognized(_:)))
         _singleTapGestureRecognizer.numberOfTouchesRequired = 1
-      
+        //_singleTapGestureRecognizer.delaysTouchesBegan = true
         _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
-        _doubleTapGestureRecognizer.nsuiNumberOfTapsRequired = 2
-        _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
-        
-        _panGestureRecognizer.delegate = self
-        
-        self.addGestureRecognizer(_tapGestureRecognizer)
-        self.addGestureRecognizer(_doubleTapGestureRecognizer)
-        self.addGestureRecognizer(_panGestureRecognizer)
+        _doubleTapGestureRecognizer.numberOfTouchesRequired = 2
+        //_doubleTapGestureRecognizer.delaysTouchesBegan = false
+        //_singleTapGestureRecognizer.require(toFail: _doubleTapGestureRecognizer)
       
+        _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
+        _panGestureRecognizer.delegate = self
+      
+        //self.addGestureRecognizer(_tapGestureRecognizer)
+        if !(self is LineChartView) {
+            self.addGestureRecognizer(_doubleTapGestureRecognizer)
+        }
+      
+        self.addGestureRecognizer(_panGestureRecognizer)
+  
         if (self is BubbleChartView || self is LineChartView) {
           self.addGestureRecognizer(_singleTapGestureRecognizer)
         }
@@ -628,7 +633,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     }
                 }
             }
-            
+          
             if (self is BubbleChartView || self is LineChartView) {
                 if !self.isHighLightPerTapEnabled { return }
                 
@@ -722,6 +727,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 // Range might have changed, which means that Y-axis labels could have changed in size, affecting Y-axis size. So we need to recalculate offsets.
                 calculateOffsets()
                 setNeedsDisplay()
+
             }
         }
         else if recognizer.state == NSUIGestureRecognizerState.changed
@@ -758,7 +764,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     matrix = _viewPortHandler.touchMatrix.concatenating(matrix)
                     
                     let _ = _viewPortHandler.refresh(newMatrix: matrix, chart: self, invalidate: true)
-                    
+      
                     if delegate !== nil
                     {
                         delegate?.chartScaled?(self, scaleX: scaleX, scaleY: scaleY)

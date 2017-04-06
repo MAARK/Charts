@@ -199,7 +199,7 @@ open class Legend: ComponentBase
     // MAARK
     public var hasShadowBorder: Bool = false
     public var legendBackgroundColor: UIColor = UIColor.clear
-    
+  
     open var font: NSUIFont = NSUIFont.systemFont(ofSize: 10.0)
     open var textColor = NSUIColor.black
 
