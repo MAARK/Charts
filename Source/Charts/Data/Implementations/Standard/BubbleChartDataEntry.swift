@@ -24,6 +24,7 @@ open class BubbleChartDataEntry: ChartDataEntry
     open var labelFont: UIFont = UIFont.systemFont(ofSize: 14)
     open var labelColor: UIColor = UIColor.white
     open var drawValue: Bool = false
+    open var yPx: CGFloat = 0
     // End Maark additions
     
     public required init()

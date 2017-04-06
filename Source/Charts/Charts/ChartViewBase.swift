@@ -745,7 +745,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     // MARK: - Callouts
     
-    internal func drawCallouts(context context: CGContext)
+    internal func drawCallouts(context: CGContext)
     {
         if (callouts == nil || !drawCallout)
         {
@@ -782,7 +782,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
   
     // MARK: - Diagonal
   
-    internal func drawDiagonal(context context: CGContext)
+    internal func drawDiagonal(context: CGContext)
     {
       let color = UIColor(red: 205/255, green: 206/255, blue: 207/255, alpha: 1)
       
@@ -812,7 +812,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     }
     
     /// - returns: the actual position in pixels of the MarkerView for the given Entry in the given DataSet.
-    public func getMarkerPosition(entry entry: ChartDataEntry, highlight: Highlight) -> CGPoint
+    public func getMarkerPosition(entry: ChartDataEntry, highlight: Highlight) -> CGPoint
     {
         fatalError("getMarkerPosition() cannot be called on ChartViewBase")
     }

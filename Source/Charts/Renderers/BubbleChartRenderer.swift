@@ -124,7 +124,9 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             }
             
             let color = dataSet.color(atIndex: Int(entry.x))
-            
+          
+            entry.yPx = _pointBuffer.y - shapeHalf
+          
             let rect = CGRect(
                 x: _pointBuffer.x - shapeHalf,
                 y: _pointBuffer.y - shapeHalf,

@@ -726,8 +726,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 
                 // Range might have changed, which means that Y-axis labels could have changed in size, affecting Y-axis size. So we need to recalculate offsets.
                 calculateOffsets()
+              
                 setNeedsDisplay()
-
+              
             }
         }
         else if recognizer.state == NSUIGestureRecognizerState.changed
@@ -871,6 +872,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 }
                 
                 _isDragging = false
+    
             }
             
             if _outerScrollView !== nil
@@ -878,6 +880,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 _outerScrollView?.nsuiIsScrollEnabled = true
                 _outerScrollView = nil
             }
+          
+          
         }
     }
     
