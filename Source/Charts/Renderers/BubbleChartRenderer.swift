@@ -333,7 +333,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         let lineHeight = labelFont.lineHeight
                         
                         var highlighted = false
-                        
+                      
                         for high in _indices
                         {
                             if let dataSet = bubbleData.getDataSetByIndex(high.dataSetIndex) as? IBubbleChartDataSet, dataSet.isHighlightEnabled == true {
@@ -342,8 +342,8 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                                 }
                             }
                         }
-                        
                         let labelColor = highlighted ? dataSet.color(atIndex: 0) : e.labelColor
+                      
                         ChartUtils.drawText(
                             context: context,
                             text: e.label,

@@ -299,7 +299,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         _indicesToHighlight.removeAll()
         setNeedsDisplay()
     }
-    
+  
     /// Removes all DataSets (and thereby Entries) from the chart. Does not set the data object to nil. Also refreshes the chart by calling setNeedsDisplay().
     open func clearValues()
     {

@@ -186,7 +186,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         let optionalContext = NSUIGraphicsGetCurrentContext()
         guard let context = optionalContext else { return }
 
-        if drawDiagonal {
+        if drawDiagonal
+        {
           drawDiagonal(context: context)
         }
         // execute all drawing commands
@@ -243,12 +244,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         context.clip(to: _viewPortHandler.contentRect)
         renderer?.drawData(context: context)
         
-        // if highlighting is enabled
-        if (valuesToHighlight())
-        {
-            renderer?.drawHighlighted(context: context, indices: _indicesToHighlight)
-        }
-        
+        renderer?.drawHighlighted(context: context, indices: _indicesToHighlight)
+      
         context.restoreGState()
         
         renderer!.drawExtras(context: context)
@@ -679,12 +676,20 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 {
                     location.y = -(self.bounds.size.height - location.y - _viewPortHandler.offsetBottom)
                 }
-                
-                self.zoom(scaleX: isScaleXEnabled ? 1.4 : 1.0, scaleY: isScaleYEnabled ? 1.4 : 1.0, x: location.x, y: location.y)
+              
+                let scaleX: CGFloat = isScaleXEnabled ? 1.4 : 1.0
+                let scaleY: CGFloat = isScaleYEnabled ? 1.4 : 1.0
+              
+                self.zoom(scaleX: scaleX, scaleY: scaleY, x: location.x, y: location.y)
+              
+                if delegate !== nil
+                {
+                  delegate?.chartScaled?(self, scaleX: scaleX, scaleY: scaleY)
+                }
             }
         }
     }
-    
+  
     #if !os(tvOS)
     @objc fileprivate func pinchGestureRecognized(_ recognizer: NSUIPinchGestureRecognizer)
     {

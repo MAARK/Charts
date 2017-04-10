@@ -20,7 +20,15 @@ open class BubbleChartView: BarLineChartViewBase, BubbleChartDataProvider
         
         renderer = BubbleChartRenderer(dataProvider: self, animator: _animator, viewPortHandler: _viewPortHandler)
     }
-    
+  
+    // Maark
+    open func clearHighlights()
+    {
+        _indicesToHighlight.removeAll()
+      
+        setNeedsDisplay()
+    }
+  
     // MARK: - BubbleChartDataProbider
     
     open var bubbleData: BubbleChartData? { return _data as? BubbleChartData }
