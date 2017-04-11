@@ -320,15 +320,18 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         pt.x = CGFloat(e.x)
                         pt.y = CGFloat(e.y * phaseY)
                         pt = pt.applying(valueToPixelMatrix)
-                        
-                        if (!viewPortHandler.isInBoundsRight(pt.x))
+                      
+                        var moveLabelLeft = false
+                        var moveLabelRight = false
+                        if (!viewPortHandler.isInBoundsRight(pt.x + width))
                         {
-                            break
+                            moveLabelLeft = true
+                          
                         }
                         
                         if ((!viewPortHandler.isInBoundsLeft(pt.x) || !viewPortHandler.isInBoundsY(pt.y)))
                         {
-                            continue
+                            moveLabelRight = true
                         }
                         
                         let labelFont = e.labelFont
@@ -346,12 +349,27 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         }
                         let labelColor = highlighted ? dataSet.color(atIndex: 0) : e.labelColor
                       
+                        var x: CGFloat =  pt.x + shapeHalf + 6
+                        var y: CGFloat = pt.y - (0.5 * lineHeight)
+                      
+                        if moveLabelLeft
+                        {
+                            x = viewPortHandler.contentRight - width - 6
+                            y = pt.y + (shapeSize / 2) + 6
+                        }
+                        else if moveLabelRight
+                        {
+                            x = viewPortHandler.contentLeft - 6
+                            y = pt.y + (shapeSize / 2) + 6
+                        }
+                      
+                     
                         ChartUtils.drawText(
                             context: context,
                             text: e.label,
                             point: CGPoint(
-                                x: pt.x + shapeHalf + 6,
-                                y: pt.y - (0.5 * lineHeight)),
+                                x: x,
+                                y: y),
                             align: .left,
                             attributes: [NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelColor])
                     }
