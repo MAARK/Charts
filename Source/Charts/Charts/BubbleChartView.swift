@@ -32,4 +32,5 @@ open class BubbleChartView: BarLineChartViewBase, BubbleChartDataProvider
     // MARK: - BubbleChartDataProbider
     
     open var bubbleData: BubbleChartData? { return _data as? BubbleChartData }
+  
 }

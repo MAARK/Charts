@@ -787,7 +787,6 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
       let color = UIColor(red: 205/255, green: 206/255, blue: 207/255, alpha: 1)
       
       context.saveGState()
-      defer { context.restoreGState() }
       
       context.setLineWidth(3.0)
       
@@ -798,6 +797,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
       context.addLine(to: CGPoint(x: frame.width, y: 40))
 
       context.strokePath()
+      
+      context.restoreGState()
+
     }
   
     public func renderCallouts(context: CGContext, callout: ChartCallout)

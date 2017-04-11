@@ -104,6 +104,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
             
             let shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+          
             entry.shapeSize = shapeSize
             let shapeHalf = shapeSize / 2.0
             
@@ -126,14 +127,15 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             let color = dataSet.color(atIndex: Int(entry.x))
           
             entry.yPx = _pointBuffer.y - shapeHalf
-          
+            entry.xPx = _pointBuffer.x - shapeHalf
             let rect = CGRect(
                 x: _pointBuffer.x - shapeHalf,
                 y: _pointBuffer.y - shapeHalf,
                 width: shapeSize,
                 height: shapeSize
             )
-
+          
+          
             context.setFillColor(color.cgColor)
             context.fillEllipse(in: rect)
         }

@@ -25,6 +25,7 @@ open class BubbleChartDataEntry: ChartDataEntry
     open var labelColor: UIColor = UIColor.white
     open var drawValue: Bool = false
     open var yPx: CGFloat = 0
+    open var xPx: CGFloat = 0
     // End Maark additions
     
     public required init()
