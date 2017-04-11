@@ -103,7 +103,9 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             _pointBuffer.y = CGFloat(entry.y * phaseY)
             _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
             
-            let shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+            var shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+          
+            shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
           
             entry.shapeSize = shapeSize
             let shapeHalf = shapeSize / 2.0
@@ -312,7 +314,9 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         _pointBuffer.y = CGFloat(e.y * phaseY)
                         _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
                         
-                        let shapeSize = getShapeSize(entrySize: e.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+                        var shapeSize = getShapeSize(entrySize: e.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+                        shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
+                      
                         let shapeHalf = shapeSize / 2.0
                         
                         let width = e.label.size(attributes: [NSFontAttributeName: e.labelFont]).width
