@@ -418,4 +418,50 @@ open class YAxisRenderer: AxisRendererBase
         
         context.restoreGState()
     }
+    
+    open override func renderDiagonalLine(context: CGContext)
+    {
+        guard
+            let yAxis = self.axis as? YAxis,
+            let viewPortHandler = self.viewPortHandler,
+            let transformer = self.transformer,
+            let d = yAxis.diagonalLine
+            else { return }
+        
+        //var diagonal = yAxis.diagonalLine
+        
+        context.saveGState()
+        
+        let trans = transformer.valueToPixelMatrix
+        
+        var startPos = CGPoint(x: d.startX, y: d.startY)
+        var endPos = CGPoint(x: d.endX, y: d.endY)
+        
+        /*var clippingRect = viewPortHandler.contentRect
+        clippingRect.origin.y -= d.lineWidth / 2.0
+        clippingRect.size.height += d.lineWidth
+        context.clip(to: clippingRect)
+        */
+        startPos = startPos.applying(trans)
+        endPos = endPos.applying(trans)
+        
+        context.beginPath()
+        context.move(to: startPos)
+        context.addLine(to: endPos)
+        
+        context.setStrokeColor(d.lineColor.cgColor)
+        context.setLineWidth(d.lineWidth)
+        if d.lineDashLengths != nil
+        {
+            context.setLineDash(phase: d.lineDashPhase, lengths: d.lineDashLengths!)
+        }
+        else
+        {
+            context.setLineDash(phase: 0.0, lengths: [])
+        }
+        
+        context.strokePath()
+        
+        context.restoreGState()
+    }
 }

@@ -173,10 +173,6 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         let optionalContext = NSUIGraphicsGetCurrentContext()
         guard let context = optionalContext else { return }
         
-        if drawDiagonal
-        {
-            drawDiagonal(context: context)
-        }
         // execute all drawing commands
         drawGridBackground(context: context)
         
@@ -226,6 +222,22 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             _rightYAxisRenderer?.renderLimitLines(context: context)
         }
         
+        if _xAxis.isEnabled && _xAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            //_xAxisRenderer?.renderDiagonalLine(context: context)
+        }
+        
+        if _leftAxis.isEnabled && _leftAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            
+            _leftYAxisRenderer?.renderDiagonalLine(context: context)
+        }
+        
+        if _rightAxis.isEnabled && _rightAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            //_rightYAxisRenderer?.renderDiagonalLine(context: context)
+        }
+        
         // make sure the data cannot be drawn outside the content-rect
         context.saveGState()
         context.clip(to: _viewPortHandler.contentRect)
@@ -235,7 +247,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         
         context.restoreGState()
         
-        renderer!.drawExtras(context: context)
+        renderer?.drawExtras(context: context)
         
         if _xAxis.isEnabled && !_xAxis.isDrawLimitLinesBehindDataEnabled
         {
@@ -250,6 +262,21 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         if _rightAxis.isEnabled && !_rightAxis.isDrawLimitLinesBehindDataEnabled
         {
             _rightYAxisRenderer?.renderLimitLines(context: context)
+        }
+        
+        if _xAxis.isEnabled && !_xAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            //_xAxisRenderer?.renderDiagonalLine(context: context)
+        }
+        
+        if _leftAxis.isEnabled && !_leftAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            _leftYAxisRenderer?.renderDiagonalLine(context: context)
+        }
+        
+        if _rightAxis.isEnabled && !_rightAxis.isDrawDiagonalLineBehindDataEnabled
+        {
+            //_rightYAxisRenderer?.renderDiagonalLine(context: context)
         }
         
         _xAxisRenderer.renderAxisLabels(context: context)

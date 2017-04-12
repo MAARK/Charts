@@ -74,6 +74,10 @@ open class AxisBase: ComponentBase
     /// array of limitlines that can be set for the axis
     fileprivate var _limitLines = [ChartLimitLine]()
     
+    // MAARK
+    fileprivate var _diagonalLine: ChartDiagonalLine?
+    open var drawDiagonalLineBehindDataEnabled = false
+    
     /// Are the LimitLines drawn behind the data or in front of the data?
     /// 
     /// **default**: false
@@ -201,6 +205,7 @@ open class AxisBase: ComponentBase
     /// 
     /// **default**: false
     open var isDrawLimitLinesBehindDataEnabled: Bool { return drawLimitLinesBehindDataEnabled }
+    open var isDrawDiagonalLineBehindDataEnabled: Bool { return drawDiagonalLineBehindDataEnabled }
     
     /// Extra spacing for `axisMinimum` to be added to automatically calculated `axisMinimum`
     open var spaceMin: Double = 0.0
@@ -269,6 +274,12 @@ open class AxisBase: ComponentBase
     {
         _limitLines.append(line)
     }
+  
+    // MAARK Addition
+    open func addDiagonalLine(_ line: ChartDiagonalLine)
+    {
+        _diagonalLine = line
+    }
     
     /// Removes the specified ChartLimitLine from the axis.
     open func removeLimitLine(_ line: ChartLimitLine)
@@ -293,6 +304,12 @@ open class AxisBase: ComponentBase
     open var limitLines : [ChartLimitLine]
     {
         return _limitLines
+    }
+    
+    
+    open var diagonalLine : ChartDiagonalLine?
+    {
+        return _diagonalLine
     }
     
     // MARK: Custom axis ranges

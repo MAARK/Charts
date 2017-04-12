@@ -622,7 +622,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
     
     open override func drawExtras(context: CGContext)
     {
-        
+
     }
     
     open override func drawHighlighted(context: CGContext, indices: [Highlight])
