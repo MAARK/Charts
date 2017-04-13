@@ -24,6 +24,10 @@ public protocol ChartViewDelegate
     /// - parameter entry: The selected Entry.
     /// - parameter highlight: The corresponding highlight object that contains information about the highlighted position such as dataSetIndex etc.
     @objc optional func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight)
+
+    
+    @objc optional func chartValueDeSelected(_ chartView: ChartViewBase)
+    
     
     // Called when nothing has been selected or an "un-select" has been made.
     @objc optional func chartValueNothingSelected(_ chartView: ChartViewBase)

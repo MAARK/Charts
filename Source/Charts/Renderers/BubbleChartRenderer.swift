@@ -214,7 +214,18 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                     let valueFont = dataSet.valueFont
                     let lineHeight = valueFont.lineHeight
 
-                    if e.drawValue
+                    var highlighted = false
+                    
+                    for high in _indices
+                    {
+                        if let dataSet = bubbleData.getDataSetByIndex(high.dataSetIndex) as? IBubbleChartDataSet, dataSet.isHighlightEnabled == true {
+                            if let entry = dataSet.entryForXValue(high.x, closestToY: high.y) as? BubbleChartDataEntry {
+                                if entry == e { highlighted = true }
+                            }
+                        }
+                    }
+                    
+                    if e.drawValue && highlighted
                     //if dataSet.isDrawValuesEnabled
                     {
                         ChartUtils.drawText(
@@ -353,6 +364,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         }
                         let labelColor = highlighted ? dataSet.color(atIndex: 0) : e.labelColor
                       
+                        
                         var x: CGFloat =  pt.x + shapeHalf + 6
                         var y: CGFloat = pt.y - (0.5 * lineHeight)
                       
