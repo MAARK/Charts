@@ -25,7 +25,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     
     /// flag that indicates if auto scaling on the y axis is enabled
     fileprivate var _autoScaleMinMaxEnabled = false
-
+    
     /// MAARK
     private var _disablePinch = false
     private var _disablePan = false
@@ -118,18 +118,18 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         self.highlighter = ChartHighlighter(chart: self)
         
         /*_singleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(singleTapGestureRecognized(_:)))
-        _singleTapGestureRecognizer.numberOfTouchesRequired = 1
+         _singleTapGestureRecognizer.numberOfTouchesRequired = 1
+         
+         _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
+         _doubleTapGestureRecognizer.numberOfTouchesRequired = 2
+         
+         _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
+         _panGestureRecognizer.delegate = self
+         
+         self.addGestureRecognizer(_doubleTapGestureRecognizer)
+         self.addGestureRecognizer(_panGestureRecognizer)
+         self.addGestureRecognizer(_singleTapGestureRecognizer)*/
         
-        _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
-        _doubleTapGestureRecognizer.numberOfTouchesRequired = 2
-        
-        _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
-        _panGestureRecognizer.delegate = self
-        
-        self.addGestureRecognizer(_doubleTapGestureRecognizer)
-        self.addGestureRecognizer(_panGestureRecognizer)
-        self.addGestureRecognizer(_singleTapGestureRecognizer)*/
-
         _tapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized(_:)))
         _tapGestureRecognizer.numberOfTouchesRequired = 2
         
@@ -267,7 +267,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         renderer?.drawHighlighted(context: context, indices: _indicesToHighlight)
         
         if _indicesToHighlight.count == 0 {
-                delegate?.chartValueDeSelected!(self)
+            delegate?.chartValueDeSelected!(self)
         }
         
         context.restoreGState()
@@ -603,7 +603,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         // Mkdebug
         // print("tapGestureRecognized")
         
-        if _data === nil
+        if _data === nil || (self is BubbleChartView)
         {
             return
         }
@@ -650,7 +650,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             {
                 self.lastHighlighted = h
                 self.highlightValue(h, callDelegate: true)
-            } 
+            }
         }
     }
     
@@ -679,22 +679,24 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 }
             }
             
-            /*if !self.isHighLightPerTapEnabled { return }
-            
-            let h = getHighlightByTouchPoint(recognizer.location(in: self))
-            
-            // MAARK - this prevents the market from disappearing when it
-            // is same as previous
-            if h === nil  || h!.isEqual(self.lastHighlighted)
-            {
-                self.highlightValue(nil, callDelegate: true)
-                self.lastHighlighted = nil
+            if (self is BubbleChartView) {
+                if !self.isHighLightPerTapEnabled { return }
+                
+                let h = getHighlightByTouchPoint(recognizer.location(in: self))
+                
+                // MAARK - this prevents the market from disappearing when it
+                // is same as previous
+                if h === nil  || h!.isEqual(self.lastHighlighted)
+                {
+                    self.highlightValue(nil, callDelegate: true)
+                    self.lastHighlighted = nil
+                }
+                else
+                {
+                    self.highlightValue(h, callDelegate: true)
+                    self.lastHighlighted = h
+                }
             }
-            else
-            {
-                self.highlightValue(h, callDelegate: true)
-                self.lastHighlighted = h
-            }*/
         }
         
         
@@ -1104,19 +1106,19 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     #if !os(OSX)
     open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
     {
-    if !super.gestureRecognizerShouldBegin(gestureRecognizer)
-    {
-    return false
-    }
-    
-    return nsuiGestureRecognizerShouldBegin(gestureRecognizer)
+        if !super.gestureRecognizerShouldBegin(gestureRecognizer)
+        {
+            return false
+        }
+        
+        return nsuiGestureRecognizerShouldBegin(gestureRecognizer)
     }
     #endif
     
     #if os(OSX)
     public func gestureRecognizerShouldBegin(gestureRecognizer: NSGestureRecognizer) -> Bool
-    {
-        return nsuiGestureRecognizerShouldBegin(gestureRecognizer)
+{
+    return nsuiGestureRecognizerShouldBegin(gestureRecognizer)
     }
     #endif
     
