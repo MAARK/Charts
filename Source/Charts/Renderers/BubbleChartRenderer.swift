@@ -232,7 +232,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                             image = highlighted ? highlightImage : icon
                         }
                         
-                        var updatedSize = icon.size
+                        var updatedSize = CGSize(width: icon.size.width * dataSet.bubbleIconSizeMultiplier, height: icon.size.height * dataSet.bubbleIconSizeMultiplier)
                         
                         if viewPortHandler.scaleX > 1 {
                             updatedSize = CGSize(width: icon.size.width * viewPortHandler.scaleX * 1.2, height: icon.size.height * viewPortHandler.scaleY * 1.2)
@@ -414,7 +414,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                                 angleRadians: 0.0)
                         } else {
                             let labelColor = highlighted ? dataSet.highlightLabelColor : dataSet.color(atIndex: 0)
-                            var y: CGFloat = pt.y + shapeHalf + modifier
+                            var y: CGFloat = pt.y + shapeHalf + modifier * dataSet.bubbleIconSizeMultiplier
                             ChartUtils.drawMultilineText(
                                 context: context,
                                 text: e.label,
