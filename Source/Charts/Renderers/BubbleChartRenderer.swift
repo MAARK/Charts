@@ -77,7 +77,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         _xBounds.set(chart: dataProvider, dataSet: dataSet, animator: animator)
         
         let valueToPixelMatrix = trans.valueToPixelMatrix
-    
+        
         _sizeBuffer[0].x = 0.0
         _sizeBuffer[0].y = 0.0
         _sizeBuffer[1].x = 1.0
@@ -93,20 +93,21 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         let maxBubbleWidth: CGFloat = abs(_sizeBuffer[1].x - _sizeBuffer[0].x)
         let maxBubbleHeight: CGFloat = abs(viewPortHandler.contentBottom - viewPortHandler.contentTop)
         let referenceSize: CGFloat = min(maxBubbleHeight, maxBubbleWidth)
-    
+        
         for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
         {
             guard let entry = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { continue }
             
+            if let icon = entry.icon, dataSet.isDrawIconsEnabled { continue }
             
             _pointBuffer.x = CGFloat(entry.x)
             _pointBuffer.y = CGFloat(entry.y * phaseY)
             _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
             
             var shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
-          
+            
             shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
-          
+            
             entry.shapeSize = shapeSize
             let shapeHalf = shapeSize / 2.0
             
@@ -127,7 +128,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             }
             
             let color = dataSet.color(atIndex: Int(entry.x))
-          
+            
             entry.yPx = _pointBuffer.y - shapeHalf
             entry.xPx = _pointBuffer.x - shapeHalf
             let rect = CGRect(
@@ -136,8 +137,8 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 width: shapeSize,
                 height: shapeSize
             )
-          
-          
+            
+            
             context.setFillColor(color.cgColor)
             context.fillEllipse(in: rect)
         }
@@ -157,7 +158,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         // if values are drawn
         if isDrawingValuesAllowed(dataProvider: dataProvider)
         {
-            guard let dataSets = bubbleData.dataSets as? [IBubbleChartDataSet] else { return }
+            guard let dataSets = bubbleData.dataSets as? [BubbleChartDataSet] else { return }
             
             let phaseX = max(0.0, min(1.0, animator.phaseX))
             let phaseY = animator.phaseY
@@ -204,16 +205,14 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         continue
                     }
                     
-                    let text = formatter.stringForValue(
-                        Double(e.size),
-                        entry: e,
-                        dataSetIndex: i,
-                        viewPortHandler: viewPortHandler)
+                    
+                    let text = String(format: "%0.2f", e.size)
                     
                     // Larger font for larger bubbles?
                     let valueFont = dataSet.valueFont
+                    let zoomedInFont = dataSet.zoomedInValueFont
                     let lineHeight = valueFont.lineHeight
-
+                    
                     var highlighted = false
                     
                     for high in _indices
@@ -225,28 +224,42 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         }
                     }
                     
-                    if e.drawValue && highlighted
-                    //if dataSet.isDrawValuesEnabled
+                    
+                    if let icon = e.icon, dataSet.isDrawIconsEnabled
                     {
+                        var image = icon
+                        if let highlightImage = e.highlightedIcon {
+                            image = highlighted ? highlightImage : icon
+                        }
+                        
+                        var updatedSize = icon.size
+                        
+                        if viewPortHandler.scaleX > 1 {
+                            updatedSize = CGSize(width: icon.size.width * viewPortHandler.scaleX * 1.2, height: icon.size.height * viewPortHandler.scaleY * 1.2)
+                        }
+                        ChartUtils.drawImage(context: context,
+                                             image: image,
+                                             x: pt.x + iconsOffset.x,
+                                             y: pt.y + iconsOffset.y,
+                                             size: updatedSize)
+                    }
+                    
+                    if viewPortHandler.scaleX > dataSet.zoomThreshold && highlighted { continue }
+                    
+                    if dataSet.isDrawValuesEnabled
+                    {
+                  
+                        let yCoord: CGFloat = viewPortHandler.scaleX > dataSet.zoomThreshold ? pt.y - (0.5 * lineHeight) - 15 : pt.y - (0.5 * lineHeight)
+                        let font = viewPortHandler.scaleX > dataSet.zoomThreshold ? zoomedInFont : valueFont
                         ChartUtils.drawText(
                             context: context,
                             text: text,
                             point: CGPoint(
                                 x: pt.x,
-                                y: pt.y - (0.5 * lineHeight)),
+                                y: yCoord),//pt.y - (0.5 * lineHeight)),
                             align: .center,
-                            attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor])
+                            attributes: [NSFontAttributeName: font, NSForegroundColorAttributeName: valueTextColor])
                     }
-                    
-                    if let icon = e.icon, dataSet.isDrawIconsEnabled
-                    {
-                         ChartUtils.drawImage(context: context,
-                                              image: icon,
-                                              x: pt.x + iconsOffset.x,
-                                              y: pt.y + iconsOffset.y,
-                                              size: icon.size)
-                    }
-                    
                 }
             }
         }
@@ -267,7 +280,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         // if values are drawn
         if isDrawingValuesAllowed(dataProvider: dataProvider)
         {
-            guard let dataSets = bubbleData.dataSets as? [IBubbleChartDataSet] else { return }
+            guard let dataSets = bubbleData.dataSets as? [BubbleChartDataSet] else { return }
             
             let phaseX = max(0.0, min(1.0, animator.phaseX))
             let phaseY = animator.phaseY
@@ -317,17 +330,17 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
-                    guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }                    
+                    guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
                     
                     if e.showLabel {
-                      
+                        
                         _pointBuffer.x = CGFloat(e.x)
                         _pointBuffer.y = CGFloat(e.y * phaseY)
                         _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
                         
                         var shapeSize = getShapeSize(entrySize: e.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
                         shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
-                      
+                        
                         let shapeHalf = shapeSize / 2.0
                         
                         let width = e.label.size(attributes: [NSFontAttributeName: e.labelFont]).width
@@ -335,13 +348,13 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         pt.x = CGFloat(e.x)
                         pt.y = CGFloat(e.y * phaseY)
                         pt = pt.applying(valueToPixelMatrix)
-                      
+                        
                         var moveLabelLeft = false
                         var moveLabelRight = false
                         if (!viewPortHandler.isInBoundsRight(pt.x + width))
                         {
                             moveLabelLeft = true
-                          
+                            
                         }
                         
                         if ((!viewPortHandler.isInBoundsLeft(pt.x) || !viewPortHandler.isInBoundsY(pt.y)))
@@ -353,7 +366,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         let lineHeight = labelFont.lineHeight
                         
                         var highlighted = false
-                      
+                        
                         for high in _indices
                         {
                             if let dataSet = bubbleData.getDataSetByIndex(high.dataSetIndex) as? IBubbleChartDataSet, dataSet.isHighlightEnabled == true {
@@ -362,32 +375,55 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                                 }
                             }
                         }
-                        let labelColor = highlighted ? dataSet.color(atIndex: 0) : e.labelColor
-                      
                         
-                        var x: CGFloat =  pt.x + shapeHalf + 6
-                        var y: CGFloat = pt.y - (0.5 * lineHeight)
-                      
-                        if moveLabelLeft
-                        {
-                            x = viewPortHandler.contentRight - width - 6
-                            y = pt.y + (shapeSize / 2) + 6
+                        let modifier: CGFloat = e.isMultiline ? 20 : 14
+                        var x: CGFloat =  pt.x
+                        
+                        let paragraph = NSMutableParagraphStyle()
+                        paragraph.alignment = .center
+                        
+                        let totalLineHeight: CGFloat = e.isMultiline ? lineHeight * 2 : lineHeight
+                        
+                        if viewPortHandler.scaleX > dataSet.zoomThreshold && highlighted {
+                        
+                            let pe = String(format: "%.0f", e.x)
+                            let percentage = String(format: "%.0f", e.y)
+                            
+                            ChartUtils.drawMultilineText(
+                                context: context,
+                                text: "P/E: \(pe)x\nGrowth: \(percentage)%",
+                                point: CGPoint(x: x, y: pt.y),
+                                attributes:[NSFontAttributeName: labelFont, NSForegroundColorAttributeName: UIColor.white, NSParagraphStyleAttributeName: paragraph],
+                                constrainedToSize: CGSize(width: width * 2, height: labelFont.lineHeight * 2),
+                                anchor: CGPoint(x: 0.5, y: 0.5),
+                                angleRadians: 0.0)
+                            
+                            continue
                         }
-                        else if moveLabelRight
-                        {
-                            x = viewPortHandler.contentLeft - 6
-                            y = pt.y + (shapeSize / 2) + 6
+                        
+                        if viewPortHandler.scaleX > dataSet.zoomThreshold {
+                            let labelColor = UIColor.white
+                            var y: CGFloat = e.isMultiline ? pt.y + lineHeight + 2 : pt.y + lineHeight - 4
+                            ChartUtils.drawMultilineText(
+                                context: context,
+                                text: e.label,
+                                point: CGPoint(x: x, y: y),
+                                attributes:[NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelColor, NSParagraphStyleAttributeName: paragraph],
+                                constrainedToSize: CGSize(width: width, height: totalLineHeight),
+                                anchor: CGPoint(x: 0.5, y: 0.5),
+                                angleRadians: 0.0)
+                        } else {
+                            let labelColor = highlighted ? dataSet.highlightLabelColor : dataSet.color(atIndex: 0)
+                            var y: CGFloat = pt.y + shapeHalf + modifier
+                            ChartUtils.drawMultilineText(
+                                context: context,
+                                text: e.label,
+                                point: CGPoint(x: x, y: y),
+                                attributes:[NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelColor, NSParagraphStyleAttributeName: paragraph],
+                                constrainedToSize: CGSize(width: width, height: totalLineHeight),
+                                anchor: CGPoint(x: 0.5, y: 0.5),
+                                angleRadians: 0.0)
                         }
-                      
-                     
-                        ChartUtils.drawText(
-                            context: context,
-                            text: e.label,
-                            point: CGPoint(
-                                x: x,
-                                y: y),
-                            align: .left,
-                            attributes: [NSFontAttributeName: labelFont, NSForegroundColorAttributeName: labelColor])
                     }
                     
                 }
@@ -416,7 +452,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 let dataSet = bubbleData.getDataSetByIndex(high.dataSetIndex) as? IBubbleChartDataSet,
                 dataSet.isHighlightEnabled
                 else { continue }
-                        
+            
             guard let entry = dataSet.entryForXValue(high.x, closestToY: high.y) as? BubbleChartDataEntry else { continue }
             
             if !isInBoundsX(entry: entry, dataSet: dataSet) { continue }

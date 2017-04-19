@@ -22,10 +22,11 @@ open class BubbleChartDataEntry: ChartDataEntry
     open var label: String = ""
     open var showLabel: Bool = false
     open var labelFont: UIFont = UIFont.systemFont(ofSize: 14)
-    open var labelColor: UIColor = UIColor.white
     open var drawValue: Bool = false
     open var yPx: CGFloat = 0
     open var xPx: CGFloat = 0
+    open var highlightedIcon: NSUIImage?
+    open var isMultiline = false
     // End Maark additions
     
     public required init()
