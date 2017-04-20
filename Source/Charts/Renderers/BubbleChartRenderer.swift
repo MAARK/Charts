@@ -189,7 +189,6 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 for j in 0..<dataSet.entryCount
                 //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
-                  print(j)
                     guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
                 
                     let valueTextColor = dataSet.valueTextColorAt(j).withAlphaComponent(CGFloat(alpha))
@@ -200,7 +199,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                     
                     if (!viewPortHandler.isInBoundsRight(pt.x))
                     {
-                        break
+                        //continue
                     }
                     
                     if ((!viewPortHandler.isInBoundsLeft(pt.x) || !viewPortHandler.isInBoundsY(pt.y)))
