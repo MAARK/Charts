@@ -94,8 +94,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         let maxBubbleHeight: CGFloat = abs(viewPortHandler.contentBottom - viewPortHandler.contentTop)
         let referenceSize: CGFloat = min(maxBubbleHeight, maxBubbleWidth)
         
-        for j in 0..<dataSet.entryCount
-        //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+        for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
         {
             guard let entry = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { continue }
             
@@ -105,7 +104,8 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             _pointBuffer.y = CGFloat(entry.y * phaseY)
             _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
             
-            var shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+            
+            var shapeSize = getShapeSize(entrySize: entry.size, maxSize: dataSet.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
             
             shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
             
@@ -128,7 +128,11 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 break
             }
             
-            let color = dataSet.color(atIndex: Int(entry.x))
+            var color = dataSet.color(atIndex: Int(entry.x))
+            if let icon = entry.icon, dataSet.isDrawIconsEnabled
+            {
+                color = UIColor.clear
+            }
             
             entry.yPx = _pointBuffer.y - shapeHalf
             entry.xPx = _pointBuffer.x - shapeHalf
@@ -166,10 +170,16 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             
             var pt = CGPoint()
             
+            var highlightPTx: CGFloat = 0
+            var highlightPTy: CGFloat = 0
+            var highlightIconOffset = CGPoint.zero
+            var highlightMultiplier: CGFloat = 0
+            var highlightEntry: BubbleChartDataEntry?
+            
             for i in 0..<dataSets.count
             {
                 let dataSet = dataSets[i]
-              
+                
                 if !shouldDrawValues(forDataSet: dataSet)
                 {
                     continue
@@ -186,11 +196,13 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 let iconsOffset = dataSet.iconsOffset
                 
-                for j in 0..<dataSet.entryCount
-                //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+                
+                
+                
+                for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
                     guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
-                
+                    
                     let valueTextColor = dataSet.valueTextColorAt(j).withAlphaComponent(CGFloat(alpha))
                     
                     pt.x = CGFloat(e.x)
@@ -229,28 +241,38 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                     
                     if let icon = e.icon, dataSet.isDrawIconsEnabled
                     {
-                        var image = icon
-                        if let highlightImage = e.highlightedIcon {
-                            image = highlighted ? highlightImage : icon
+                        if highlighted {
+                            highlightPTx = pt.x
+                            highlightPTy = pt.y
+                            highlightIconOffset = iconsOffset
+                            highlightMultiplier = dataSet.bubbleIconSizeMultiplier
+                            highlightEntry = e
+                        } else {
+                            var image = icon
+                            if let highlightImage = e.highlightedIcon {
+                                image = highlighted ? highlightImage : icon
+                            }
+                            
+                            var updatedSize = CGSize(width: icon.size.width * dataSet.bubbleIconSizeMultiplier, height: icon.size.height * dataSet.bubbleIconSizeMultiplier)
+                            
+                            if viewPortHandler.scaleX > 1 {
+                                updatedSize = CGSize(width: icon.size.width * viewPortHandler.scaleX * 1.2, height: icon.size.height * viewPortHandler.scaleY * 1.2)
+                            }
+                            ChartUtils.drawImage(context: context,
+                                                 image: image,
+                                                 x: pt.x + iconsOffset.x,
+                                                 y: pt.y + iconsOffset.y,
+                                                 size: updatedSize)
                         }
-                        
-                        var updatedSize = CGSize(width: icon.size.width * dataSet.bubbleIconSizeMultiplier, height: icon.size.height * dataSet.bubbleIconSizeMultiplier)
-                        
-                        if viewPortHandler.scaleX > 1 {
-                            updatedSize = CGSize(width: icon.size.width * viewPortHandler.scaleX * 1.2, height: icon.size.height * viewPortHandler.scaleY * 1.2)
-                        }
-                        ChartUtils.drawImage(context: context,
-                                             image: image,
-                                             x: pt.x + iconsOffset.x,
-                                             y: pt.y + iconsOffset.y,
-                                             size: updatedSize)
                     }
+                    
+                    
                     
                     if viewPortHandler.scaleX > dataSet.zoomThreshold && highlighted { continue }
                     
                     if dataSet.isDrawValuesEnabled
                     {
-                  
+                        
                         let yCoord: CGFloat = viewPortHandler.scaleX > dataSet.zoomThreshold ? pt.y - (0.5 * lineHeight) - 15 : pt.y - (0.5 * lineHeight)
                         let font = viewPortHandler.scaleX > dataSet.zoomThreshold ? zoomedInFont : valueFont
                         ChartUtils.drawText(
@@ -264,6 +286,26 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                     }
                 }
             }
+            
+            // Draw the highlight above everything
+            if let e = highlightEntry, let icon = e.icon {
+                var image = icon
+                if let highlightImage = e.highlightedIcon {
+                    image = highlightImage
+                }
+                
+                var updatedSize = CGSize(width: icon.size.width * highlightMultiplier, height: icon.size.height * highlightMultiplier)
+                
+                if viewPortHandler.scaleX > 1 {
+                    updatedSize = CGSize(width: icon.size.width * viewPortHandler.scaleX * 1.2, height: icon.size.height * viewPortHandler.scaleY * 1.2)
+                }
+                ChartUtils.drawImage(context: context,
+                                     image: image,
+                                     x: highlightPTx + highlightIconOffset.x,
+                                     y: highlightPTy + highlightIconOffset.y,
+                                     size: updatedSize)
+            }
+            
         }
     }
     
@@ -330,8 +372,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 let iconsOffset = dataSet.iconsOffset
                 
-                for j in 0..<dataSet.entryCount
-                //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+                for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
                     guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
                     
@@ -341,7 +382,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         _pointBuffer.y = CGFloat(e.y * phaseY)
                         _pointBuffer = _pointBuffer.applying(valueToPixelMatrix)
                         
-                        var shapeSize = getShapeSize(entrySize: e.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+                        var shapeSize = getShapeSize(entrySize: e.size, maxSize: dataSet.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
                         shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
                         
                         let shapeHalf = shapeSize / 2.0
@@ -388,7 +429,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         let totalLineHeight: CGFloat = e.isMultiline ? lineHeight * 2 : lineHeight
                         
                         if viewPortHandler.scaleX > dataSet.zoomThreshold && highlighted {
-                        
+                            
                             let pe = String(format: "%.0f", e.x)
                             let percentage = String(format: "%.0f", e.y)
                             
@@ -480,7 +521,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             _pointBuffer.y = CGFloat(entry.y * phaseY)
             trans.pointValueToPixel(&_pointBuffer)
             
-            let shapeSize = getShapeSize(entrySize: entry.size, maxSize: bubbleData.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
+            let shapeSize = getShapeSize(entrySize: entry.size, maxSize: dataSet.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
             let shapeHalf = shapeSize / 2.0
             
             if !viewPortHandler.isInBoundsTop(_pointBuffer.y + shapeHalf) ||
