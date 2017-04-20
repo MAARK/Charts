@@ -94,7 +94,8 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
         let maxBubbleHeight: CGFloat = abs(viewPortHandler.contentBottom - viewPortHandler.contentTop)
         let referenceSize: CGFloat = min(maxBubbleHeight, maxBubbleWidth)
         
-        for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+        for j in 0..<dataSet.entryCount
+        //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
         {
             guard let entry = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { continue }
             
@@ -168,7 +169,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
             for i in 0..<dataSets.count
             {
                 let dataSet = dataSets[i]
-                
+              
                 if !shouldDrawValues(forDataSet: dataSet)
                 {
                     continue
@@ -185,10 +186,12 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 let iconsOffset = dataSet.iconsOffset
                 
-                for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+                for j in 0..<dataSet.entryCount
+                //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
+                  print(j)
                     guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
-                    
+                
                     let valueTextColor = dataSet.valueTextColorAt(j).withAlphaComponent(CGFloat(alpha))
                     
                     pt.x = CGFloat(e.x)
@@ -328,7 +331,8 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 let iconsOffset = dataSet.iconsOffset
                 
-                for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
+                for j in 0..<dataSet.entryCount
+                //for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
                 {
                     guard let e = dataSet.entryForIndex(j) as? BubbleChartDataEntry else { break }
                     
