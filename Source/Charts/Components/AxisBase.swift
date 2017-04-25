@@ -52,6 +52,8 @@ open class AxisBase: ComponentBase
     open var hideLabels: Bool = false
     open var drawTopBorder: Bool = false
     open var topBorderColor: UIColor = UIColor.black
+    fileprivate var _diagonalLine: ChartDiagonalLine?
+    open var drawDiagonalLineBehindDataEnabled = false
     
     /// flag that indicates of the labels of this axis should be drawn or not
     open var drawLabelsEnabled = true
@@ -73,10 +75,6 @@ open class AxisBase: ComponentBase
 
     /// array of limitlines that can be set for the axis
     fileprivate var _limitLines = [ChartLimitLine]()
-    
-    // MAARK
-    fileprivate var _diagonalLine: ChartDiagonalLine?
-    open var drawDiagonalLineBehindDataEnabled = false
     
     /// Are the LimitLines drawn behind the data or in front of the data?
     /// 
