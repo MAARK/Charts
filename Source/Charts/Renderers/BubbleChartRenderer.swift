@@ -275,6 +275,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         
                         let yCoord: CGFloat = viewPortHandler.scaleX > dataSet.zoomThreshold ? pt.y - (0.5 * lineHeight) - 15 : pt.y - (0.5 * lineHeight)
                         let font = viewPortHandler.scaleX > dataSet.zoomThreshold ? zoomedInFont : valueFont
+                        
                         ChartUtils.drawText(
                             context: context,
                             text: text,
@@ -385,7 +386,11 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         var shapeSize = getShapeSize(entrySize: e.size, maxSize: dataSet.maxSize, reference: referenceSize, normalizeSize: normalizeSize)
                         shapeSize = shapeSize / bubbleData.bubbleSizeMultiplier
                         
-                        let shapeHalf = shapeSize / 2.0
+                        var shapeHalf = shapeSize / 2.0
+                        
+                        if let icon = e.icon {
+                            shapeHalf = (icon.size.height / 2.0) * dataSet.bubbleIconSizeMultiplier
+                        }
                         
                         let width = e.label.size(attributes: [NSFontAttributeName: e.labelFont]).width
                         
@@ -406,7 +411,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                             moveLabelRight = true
                         }
                         
-                        let labelFont = e.labelFont
+                        var labelFont = e.labelFont
                         let lineHeight = labelFont.lineHeight
                         
                         var highlighted = false
@@ -420,7 +425,9 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                             }
                         }
                         
-                        let modifier: CGFloat = e.isMultiline ? 20 : 14
+                        var modifier: CGFloat = e.isMultiline ? 16 : 10
+                        modifier = modifier * dataSet.bubbleIconSizeMultiplier
+                        
                         var x: CGFloat =  pt.x
                         
                         let paragraph = NSMutableParagraphStyle()
@@ -448,6 +455,11 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                         if viewPortHandler.scaleX > dataSet.zoomThreshold {
                             let labelColor = UIColor.white
                             var y: CGFloat = e.isMultiline ? pt.y + lineHeight + 2 : pt.y + lineHeight - 4
+
+                            let width = e.label.size(attributes: [NSFontAttributeName: labelFont]).width
+          
+                            if width > 100 { labelFont = UIFont(name: labelFont.fontName, size: labelFont.pointSize - 2.5)! }
+                            
                             ChartUtils.drawMultilineText(
                                 context: context,
                                 text: e.label,
@@ -458,7 +470,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                                 angleRadians: 0.0)
                         } else {
                             let labelColor = highlighted ? dataSet.highlightLabelColor : dataSet.color(atIndex: 0)
-                            var y: CGFloat = pt.y + shapeHalf + modifier * dataSet.bubbleIconSizeMultiplier
+                            var y: CGFloat = pt.y + shapeHalf + modifier //* dataSet.bubbleIconSizeMultiplier                            
                             ChartUtils.drawMultilineText(
                                 context: context,
                                 text: e.label,
