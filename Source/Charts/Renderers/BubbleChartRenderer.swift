@@ -470,7 +470,7 @@ open class BubbleChartRenderer: BarLineScatterCandleBubbleRenderer
                                 angleRadians: 0.0)
                         } else {
                             let labelColor = highlighted ? dataSet.highlightLabelColor : dataSet.color(atIndex: 0)
-                            var y: CGFloat = pt.y + shapeHalf + modifier //* dataSet.bubbleIconSizeMultiplier                            
+                            var y: CGFloat = pt.y + shapeHalf + modifier
                             ChartUtils.drawMultilineText(
                                 context: context,
                                 text: e.label,
