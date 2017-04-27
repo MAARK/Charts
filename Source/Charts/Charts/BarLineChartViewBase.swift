@@ -249,6 +249,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         // make sure the data cannot be drawn outside the content-rect
         context.saveGState()
         context.clip(to: _viewPortHandler.contentRect)
+        
+        renderer?.drawExtras(context: context)
+        
         renderer?.drawData(context: context)
         
         renderer?.drawHighlighted(context: context, indices: _indicesToHighlight)
@@ -293,6 +296,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _leftYAxisRenderer.renderAxisLabels(context: context)
         _rightYAxisRenderer.renderAxisLabels(context: context)
         
+        
+        
         if clipValuesToContentEnabled
         {
             context.saveGState()
@@ -306,7 +311,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             renderer!.drawValues(context: context)
         }
         
-        renderer?.drawExtras(context: context)
+        
         
         _legendRenderer.renderLegend(context: context)
         
