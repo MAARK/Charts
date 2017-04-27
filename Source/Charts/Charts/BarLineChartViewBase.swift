@@ -296,7 +296,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _leftYAxisRenderer.renderAxisLabels(context: context)
         _rightYAxisRenderer.renderAxisLabels(context: context)
         
-        
+        renderer?.drawExtras(context: context)
         
         if clipValuesToContentEnabled
         {
@@ -312,7 +312,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
         
         
-        renderer?.drawExtras(context: context)
+        
         _legendRenderer.renderLegend(context: context)
         
         drawDescription(context: context)
