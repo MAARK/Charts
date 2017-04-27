@@ -250,7 +250,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         context.saveGState()
         context.clip(to: _viewPortHandler.contentRect)
         
-        renderer?.drawExtras(context: context)
+        //renderer?.drawExtras(context: context)
         
         renderer?.drawData(context: context)
         
@@ -312,7 +312,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
         
         
-        
+        renderer?.drawExtras(context: context)
         _legendRenderer.renderLegend(context: context)
         
         drawDescription(context: context)
