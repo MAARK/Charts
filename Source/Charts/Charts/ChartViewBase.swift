@@ -37,6 +37,11 @@ public protocol ChartViewDelegate
 
     // Callbacks when Animator stops animating
     @objc optional func chartView(_ chartView: ChartViewBase, animatorDidStop animator: Animator)
+    
+    // Callbacks when the chart is moved / translated via drag gesture.
+    @objc optional func chartCalloutTapped(_ chartView: ChartViewBase, callout: Callout)
+    
+    @objc optional func chartHideDataMarker(_ chartView: ChartViewBase)
 }
 
 open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
@@ -50,6 +55,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         return _xAxis
     }
+    
+    /// MAARK
+    @objc open var disableHighlighting: Bool = false
     
     /// The default IValueFormatter that has been determined by the chart considering the provided minimum and maximum values.
     internal var _defaultValueFormatter: IValueFormatter? = DefaultValueFormatter(decimals: 0)
@@ -76,7 +84,10 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// The `Description` object of the chart.
     /// This should have been called just "description", but
     @objc open var chartDescription: Description?
-        
+    
+    /// MAARK
+    @objc open var multipleMarkersEnabled: Bool = false
+    
     /// The legend object containing all data associated with the legend
     internal var _legend: Legend!
     
@@ -405,7 +416,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// - Returns: `true` if there are values to highlight, `false` ifthere are no values to highlight.
     @objc open func valuesToHighlight() -> Bool
     {
-        return !_indicesToHighlight.isEmpty
+        // MAARK
+        if (!disableHighlighting) {
+            return _indicesToHighlight.count > 0
+        }
+        else {
+            return false
+        }
     }
 
     /// Highlights the values at the given indices in the given DataSets. Provide

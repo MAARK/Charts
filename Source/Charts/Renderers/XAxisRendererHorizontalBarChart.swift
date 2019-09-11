@@ -353,4 +353,59 @@ open class XAxisRendererHorizontalBarChart: XAxisRenderer
             }
         }
     }
+    
+    /// MAARK
+    open override func renderGridAreas(context context: CGContext)
+    {
+        let viewPortHandler = self.viewPortHandler
+        guard
+            let xAxis = self.axis as? XAxis,
+            let transformer = self.transformer
+            else { return }
+        
+        // New isDrawGridAreasEnabled property parallels isDrawGridLinesEnableld
+        
+        // xAxis.filledAreas is an array of ChartXAxisAreaData instances, a new class
+        // which has startX and endY properties
+        
+        if (!xAxis.isDrawGridAreasEnabled || !xAxis.isEnabled || xAxis.filledAreas.count == 0)
+        {
+            return
+        }
+        
+        guard let chart = chart else { return }
+        
+        let barData = chart.data as! BarChartData
+        
+        let step = barData.dataSetCount
+        
+        context.saveGState()
+        
+        var position = CGPoint(x: 0.0, y: 0.0)
+        var endPosition = CGPoint(x: 0.0, y: 0.0)
+        let valueToPixelMatrix = transformer.valueToPixelMatrix
+        
+        // Iterate through filled areas
+        for areaData in xAxis.filledAreas {
+            // Get start position, using the same logic as used in rendering gridlines
+            let sx = Int(areaData.startX)
+            position.x = CGFloat(sx * step) + CGFloat(sx) * barData.groupSpace - 0.5
+            position = position.applying(valueToPixelMatrix)
+            // Get end position
+            let ex = Int(areaData.endX)
+            endPosition.x = CGFloat(ex * step) + CGFloat(ex) * barData.groupSpace - 0.5
+            endPosition = endPosition.applying(valueToPixelMatrix)
+            // Draw rectangle
+            
+            let rectangle = CGRect(x: position.x, y: viewPortHandler.contentTop, width: CGFloat(endPosition.x-position.x), height: viewPortHandler.contentBottom)
+            let color = areaData.color;
+            context.setFillColor(color.cgColor)
+            context.setStrokeColor(color.cgColor)
+            context.setLineWidth(1)
+            context.addRect(rectangle)
+            context.drawPath(using: .fillStroke)
+        }
+        
+        context.restoreGState()
+    }
 }

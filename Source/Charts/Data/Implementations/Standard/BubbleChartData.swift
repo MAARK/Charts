@@ -14,6 +14,10 @@ import CoreGraphics
 
 open class BubbleChartData: BarLineScatterCandleBubbleChartData
 {
+    
+    // Maark addition
+    @objc open var bubbleSizeMultiplier: CGFloat = 1.0
+    
     public override init()
     {
         super.init()

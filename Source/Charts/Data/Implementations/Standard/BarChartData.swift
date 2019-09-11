@@ -29,6 +29,25 @@ open class BarChartData: BarLineScatterCandleBubbleChartData
     /// **default**: 0.85
     @objc open var barWidth = Double(0.85)
     
+    private var _groupSpace = CGFloat(0.8)
+    
+    /// The spacing is relative to a full bar width
+    public var groupSpace: CGFloat
+    {
+        get
+        {
+            if (_dataSets.count <= 1)
+            {
+                return 0.0
+            }
+            return _groupSpace
+        }
+        set
+        {
+            _groupSpace = newValue
+        }
+    }
+    
     /// Groups all BarDataSet objects this data object holds together by modifying the x-value of their entries.
     /// Previously set x-values of entries will be overwritten. Leaves space between bars and groups as specified by the parameters.
     /// Do not forget to call notifyDataSetChanged() on your BarChart object after calling this method.
@@ -39,6 +58,7 @@ open class BarChartData: BarLineScatterCandleBubbleChartData
     ///   - barSpace: The space between individual bars in values (not pixels) e.g. 0.1f for bar width 1f
     @objc open func groupBars(fromX: Double, groupSpace: Double, barSpace: Double)
     {
+        self.groupSpace = CGFloat(groupSpace)
         let setCount = _dataSets.count
         if setCount <= 1
         {
