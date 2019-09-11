@@ -116,6 +116,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     @objc open var drawMarkers = true
+    @objc open var areaMarkers = false
     
     /// - returns: `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
@@ -123,6 +124,12 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: IMarker?
+    
+    /// if set to true, the marker is drawn
+    open var drawCallout = true
+    
+    /// the view that represents the callout
+    open var callouts: [ChartCallout]?
     
     private var _interceptTouchEvents = false
     
@@ -582,8 +589,88 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             marker.refreshContent(entry: e, highlight: highlight)
             
             // draw the marker
-            marker.draw(context: context, point: pos)
+            if areaMarkers == true
+            {
+                drawAreaMakerInContext(context: context, highlight: highlight, pos: pos)
+            } else
+            {
+                // draw the marker
+                marker.draw(context: context, point: pos)
+            }
         }
+    }
+    
+    internal func drawAreaMakerInContext(context: CGContext, highlight: Highlight, pos: CGPoint)
+    {
+        guard let dataSet = _data?.dataSets[highlight.dataSetIndex] as? LineChartDataSet else { return }
+        
+        guard let setColor = dataSet.colors.first else { return }
+        
+        let formsize: CGFloat = 14
+        let formColor = setColor.withAlphaComponent(0.5)
+        
+        let frame = CGRect(x: pos.x - (formsize / 2), y: pos.y - (formsize / 2), width: formsize, height: formsize)
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+        
+        context.setLineWidth(4.0)
+        
+        context.setStrokeColor(UIColor.white.cgColor)
+        
+        context.addEllipse(in: frame)
+        context.strokePath()
+        
+        context.setFillColor(formColor.cgColor)
+        context.fillEllipse(in: frame)
+    }
+    
+    // MARK: - Callouts
+    
+    internal func drawCallouts(context: CGContext)
+    {
+        if (callouts == nil || !drawCallout)
+        {
+            return
+        }
+        
+        for callout in callouts!
+        {
+            
+            var pos = getCalloutPosition(callout: callout)
+            
+            let offset: CGFloat = 22
+            
+            if !_viewPortHandler.isInBoundsLeft(pos.x + offset - 10) {
+                pos.x = offset - 10
+            }
+            
+            if !_viewPortHandler.isInBoundsRight(pos.x + offset) {
+                pos.x = _viewPortHandler.contentRect.origin.x + _viewPortHandler.contentRect.size.width - offset
+            }
+            
+            if !_viewPortHandler.isInBoundsBottom(pos.y + offset) {
+                pos.y = _viewPortHandler.chartHeight - offset - 20
+            }
+            
+            if !_viewPortHandler.isInBoundsTop(pos.y) {
+                pos.y = 0
+            }
+            
+            callout.draw(context: context, point: pos)
+        }
+        
+    }
+    
+    public func renderCallouts(context: CGContext, callout: ChartCallout)
+    {
+        fatalError("renderCallouts() cannot be called on ChartViewBase")
+    }
+    
+    /// - returns: the actual position in pixels of the Callout
+    public func getCalloutPosition(callout: ChartCallout) -> CGPoint
+    {
+        fatalError("getCalloutPosition() cannot be called on ChartViewBase")
     }
     
     /// - returns: The actual position in pixels of the MarkerView for the given Entry in the given DataSet.
