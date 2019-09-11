@@ -76,7 +76,7 @@ open class Callout: NSObject {
     /// This method enables a custom Callout to update it's content everytime the CalloutView is redrawn according to the data entry it points to.
     ///
     /// - parameter highlight: the highlight object contains information about the highlighted value such as it's dataset-index, the selected range or stack-index (only stacked bar entries).
-    open func refreshContent(entry entry: ChartDataEntry, highlight: Highlight)
+    open func refreshContent(entry: ChartDataEntry, highlight: Highlight)
     {
         // Do nothing here...
     }

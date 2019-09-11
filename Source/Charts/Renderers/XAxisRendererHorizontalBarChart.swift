@@ -355,7 +355,7 @@ open class XAxisRendererHorizontalBarChart: XAxisRenderer
     }
     
     /// MAARK
-    open override func renderGridAreas(context context: CGContext)
+    open override func renderGridAreas(context: CGContext)
     {
         let viewPortHandler = self.viewPortHandler
         guard

@@ -26,7 +26,7 @@ open class XAxis: AxisBase
     }
     
     /// MAARK custom
-    @objc open var filledAreas: [ChartXAxisAreaData] = []
+    @objc open var filledAreas: [XAxisAreaData] = []
     
     /// width of the x-axis labels in pixels - this is automatically calculated by the `computeSize()` methods in the renderers
     @objc open var labelWidth = CGFloat(1.0)
