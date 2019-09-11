@@ -17,6 +17,18 @@ open class BubbleChartDataEntry: ChartDataEntry
     /// The size of the bubble.
     @objc open var size = CGFloat(0.0)
     
+    // Maark additions
+    @objc open var shapeSize = CGFloat(0.0)
+    @objc open var label: String = ""
+    @objc open var showLabel: Bool = false
+    @objc open var labelFont: UIFont = UIFont.systemFont(ofSize: 14)
+    @objc open var drawValue: Bool = false
+    @objc open var yPx: CGFloat = 0
+    @objc open var xPx: CGFloat = 0
+    @objc open var highlightedIcon: NSUIImage?
+    @objc open var isMultiline = false
+    // End Maark additions
+    
     public required init()
     {
         super.init()

@@ -47,6 +47,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         return _xAxis
     }
     
+    /// MAARK
+    @objc open var disableHighlighting: Bool = false
+    
     /// The default IValueFormatter that has been determined by the chart considering the provided minimum and maximum values.
     internal var _defaultValueFormatter: IValueFormatter? = DefaultValueFormatter(decimals: 0)
     
@@ -68,6 +71,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The object representing the labels on the x-axis
     internal var _xAxis: XAxis!
+    
+    /// MAARK
+    @objc open var multipleMarkersEnabled: Bool = false
     
     /// The `Description` object of the chart.
     /// This should have been called just "description", but
@@ -384,7 +390,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// - returns: `true` if there are values to highlight, `false` ifthere are no values to highlight.
     @objc open func valuesToHighlight() -> Bool
     {
-        return _indicesToHighlight.count > 0
+        // MAARK
+        if (!disableHighlighting) {
+            return _indicesToHighlight.count > 0
+        }
+        else {
+            return false
+        }
     }
 
     /// Highlights the values at the given indices in the given DataSets. Provide

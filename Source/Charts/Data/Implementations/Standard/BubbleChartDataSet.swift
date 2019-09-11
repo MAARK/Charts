@@ -23,6 +23,13 @@ open class BubbleChartDataSet: BarLineScatterCandleBubbleChartDataSet, IBubbleCh
     @objc open var normalizeSizeEnabled: Bool = true
     open var isNormalizeSizeEnabled: Bool { return normalizeSizeEnabled }
     
+    // MAARK
+    @objc open var highlightLabelColor: NSUIColor = UIColor.yellow
+    @objc open var zoomedInValueFont: UIFont = UIFont.systemFont(ofSize: 21)
+    @objc open var zoomThreshold: CGFloat = 1
+    @objc open var bubbleIconSizeMultiplier: CGFloat = 1
+    //
+    
     open override func calcMinMax(entry e: ChartDataEntry)
     {
         guard let e = e as? BubbleChartDataEntry

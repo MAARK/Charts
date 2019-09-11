@@ -317,6 +317,59 @@ open class XAxisRenderer: AxisRendererBase
         }
     }
     
+    /// MAARK
+    
+    open func renderGridAreas(context: CGContext)
+    {
+        let viewPortHandler = self.viewPortHandler
+        guard
+            let xAxis = self.axis as? XAxis,
+            let transformer = self.transformer
+            else { return }
+        
+        if (!xAxis.isDrawGridAreasEnabled || !xAxis.isEnabled)
+        {
+            return
+        }
+        
+        // New isDrawGridAreasEnabled property parallels isDrawGridLinesEnableld
+        
+        // xAxis.filledAreas is an array of ChartXAxisAreaData instances, a new class
+        // which has startX and endY properties
+        
+        if (!xAxis.isDrawGridAreasEnabled || !xAxis.isEnabled || xAxis.filledAreas.count == 0)
+        {
+            return
+        }
+        
+        context.saveGState()
+        
+        var position = CGPoint(x: 0.0, y: 0.0)
+        var endPosition = CGPoint(x: 0.0, y: 0.0)
+        let valueToPixelMatrix = transformer.valueToPixelMatrix
+        
+        // Iterate through filled areas
+        for areaData in xAxis.filledAreas {
+            // Get start position
+            position.x = CGFloat(areaData.startX)
+            position = position.applying(valueToPixelMatrix)
+            // Get end position
+            endPosition.x = CGFloat(areaData.endX)
+            endPosition = endPosition.applying(valueToPixelMatrix)
+            // Draw rectangle
+            let rectangle = CGRect(x: position.x, y: viewPortHandler.contentTop, width: CGFloat(endPosition.x-position.x), height: viewPortHandler.contentBottom)
+            let color = areaData.color;
+            context.setFillColor(color.cgColor)
+            context.setStrokeColor(color.cgColor)
+            context.setLineWidth(1)
+            context.addRect(rectangle)
+            context.drawPath(using: .fillStroke)
+        }
+        
+        context.restoreGState()
+        
+    }
+    
     @objc open var gridClippingRect: CGRect
     {
         var contentRect = viewPortHandler.contentRect

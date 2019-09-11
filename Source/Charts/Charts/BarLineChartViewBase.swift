@@ -26,6 +26,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     /// flag that indicates if auto scaling on the y axis is enabled
     private var _autoScaleMinMaxEnabled = false
     
+    /// MAARK
+    private var _disablePinch = false
+    private var _disablePan = false
+    
     private var _pinchZoomEnabled = false
     private var _doubleTapToZoomEnabled = true
     private var _dragXEnabled = true
@@ -531,7 +535,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             
             let h = getHighlightByTouchPoint(recognizer.location(in: self))
             
-            if h === nil || h == self.lastHighlighted
+            // MAARK - this prevents the market from disappearing when it
+            // is same as previous
+            if h === nil /*|| h == self.lastHighlighted*/
             {
                 highlightValue(nil, callDelegate: true)
                 lastHighlighted = nil
@@ -667,6 +673,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     {
         if recognizer.state == NSUIGestureRecognizerState.began && recognizer.nsuiNumberOfTouches() > 0
         {
+            
+            // MAARK
+            _disablePinch = true
+            
             stopDeceleration()
             
             if _data === nil || !self.isDragEnabled
@@ -725,6 +735,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
         else if recognizer.state == NSUIGestureRecognizerState.changed
         {
+            
+            // MAARK
+            _disablePinch = true
+            
             if _isDragging
             {
                 let originalTranslation = recognizer.translation(in: self)
@@ -779,6 +793,10 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 _outerScrollView?.nsuiIsScrollEnabled = true
                 _outerScrollView = nil
             }
+            
+            // MAARK
+            self.highlightValue(nil, callDelegate: true)
+            _disablePinch = false
         }
     }
     

@@ -41,6 +41,20 @@ open class AxisBase: ComponentBase
     @objc open var drawGridLinesEnabled = true
     @objc open var drawAxisLineEnabled = true
     
+    /// MAARK
+    @objc open var drawGridAreasEnabled = true
+    @objc open var filledAreaTopOffset: CGFloat = 0
+    @objc open var axisLabelIsDate: Bool = false
+    @objc open var dateFormatter: DateFormatter = DateFormatter()
+    @objc open var onlyFormatSignificantLabels: Bool = false
+    @objc open var useDataSetLabelForAxisLabel: Bool = false
+    @objc open var dataSets: [IChartDataSet]?
+    @objc open var hideLabels: Bool = false
+    @objc open var drawTopBorder: Bool = false
+    @objc open var topBorderColor: UIColor = UIColor.black
+    fileprivate var _diagonalLine: ChartDiagonalLine?
+    @objc open var drawDiagonalLineBehindDataEnabled = false
+    
     /// flag that indicates of the labels of this axis should be drawn or not
     @objc open var drawLabelsEnabled = true
     
@@ -179,6 +193,8 @@ open class AxisBase: ComponentBase
     
     @objc open var isDrawGridLinesEnabled: Bool { return drawGridLinesEnabled }
     
+    @objc open var isDrawGridAreasEnabled: Bool { return drawGridAreasEnabled; }
+    
     @objc open var isDrawAxisLineEnabled: Bool { return drawAxisLineEnabled }
     
     @objc open var isDrawLabelsEnabled: Bool { return drawLabelsEnabled }
@@ -254,6 +270,12 @@ open class AxisBase: ComponentBase
     @objc open func addLimitLine(_ line: ChartLimitLine)
     {
         _limitLines.append(line)
+    }
+    
+    // MAARK Addition
+    @objc open func addDiagonalLine(_ line: ChartDiagonalLine)
+    {
+        _diagonalLine = line
     }
     
     /// Removes the specified ChartLimitLine from the axis.

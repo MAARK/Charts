@@ -101,6 +101,10 @@ open class Legend: ComponentBase
     /// The text direction of the legend
     @objc open var direction: Direction = Direction.leftToRight
 
+    // MAARK
+    @objc public var hasShadowBorder: Bool = false
+    @objc public var legendBackgroundColor: UIColor = UIColor.clear
+    
     @objc open var font: NSUIFont = NSUIFont.systemFont(ofSize: 10.0)
     @objc open var textColor = NSUIColor.black
 
